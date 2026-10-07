@@ -21,7 +21,8 @@ async function main() {
   const server = createApp(repository, { demo: true, webRoot }).listen(
     port,
     "127.0.0.1",
-    () => {
+    (error) => {
+      if (error) return;
       console.log(`\nAo Ponto\nAbra no navegador: http://127.0.0.1:${port}\n`);
       console.log(
         "Catálogo de demonstração. Não requer PostgreSQL ou internet durante o uso.",
