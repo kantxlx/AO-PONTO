@@ -329,26 +329,36 @@ export default function App() {
                 A seleção estará disponível quando o cardápio carregar.
               </p>
             ) : cartRows.length === 0 ? (
-
               <>
                 {serviceTicket !== null && (
-                  <div className="service-ticket">
-                    <strong>Sua senha</strong>
-                    <span>{serviceTicket}</span>
-                  </div>
-                 )}
+                  <div className="service-ticket" role="status">
+                    <div className="service-ticket-header">
+                      <span>Pedido registrado</span>
+                      <span className="service-ticket-check">✓</span>
+                    </div>
 
-              <div className="empty-cart">
-                <span>
-                  <ShoppingBag size={36} strokeWidth={1.2} />
-                </span>
-                <h3>O que vai ser hoje?</h3>
-                <p>
-                  Adicione seus cortes favoritos.
-                  <br />
-                  Seu pedido começa aqui.
-                </p>
-              </div>
+                    <div className="service-ticket-content">
+                      <p>Sua senha de atendimento</p>
+                      <strong>{serviceTicket}</strong>
+                    </div>
+
+                    <div className="service-ticket-footer">
+                      Aguarde sua senha ser chamada.
+                    </div>
+                  </div>
+                )}
+
+                <div className="empty-cart">
+                  <span>
+                    <ShoppingBag size={36} strokeWidth={1.2} />
+                  </span>
+                  <h3>O que vai ser hoje?</h3>
+                  <p>
+                    Adicione seus cortes favoritos.
+                    <br />
+                    Seu pedido começa aqui.
+                  </p>
+                </div>
               </>
             ) : (
               <>
