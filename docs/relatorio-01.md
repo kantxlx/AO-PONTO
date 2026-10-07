@@ -31,13 +31,13 @@ A seleção fica no navegador para sobreviver a um recarregamento. Não foi impl
 - Auditoria das dependências sem vulnerabilidades conhecidas na verificação inicial.
 - Verificação no navegador: catálogo carregado, indisponibilidade bloqueada, seleção de 0,500 kg de picanha, total estimado de R$ 39,95 e recuperação após recarregar.
 - Teste de integração PostgreSQL preparado, mas não executado localmente por ausência de servidor PostgreSQL/Docker. O CI foi configurado para executar esse teste com banco isolado.
-- A execução remota do CI precisa ser confirmada antes de considerar a integração PostgreSQL validada.
+- CI remoto concluído com sucesso no commit `d398928`: migração, seed, testes (incluindo integração PostgreSQL) e build aprovados. Execução: https://github.com/kantxlx/AO-PONTO/actions/runs/37677331929.
 
 ## Atualização externa
 
 Trello: pendente de conexão/login. Nenhum cartão foi movido ou marcado como concluído sem acesso ao seu conteúdo.
 
-GitHub: entrega organizada em commits por estrutura e caso de uso. O resultado do envio está informado no resumo da conversa.
+GitHub: entrega enviada para `main`, organizada em commits por estrutura e caso de uso. Publicação confirmada no repositório e CI aprovado.
 
 ## Próxima etapa
 
