@@ -18,6 +18,49 @@ const money = (value) =>
     value / 100,
   );
 export default function App() {
+  //uc03
+  const [registeringOrder, setRegisteringOrder] = useState(false);
+  const [serviceTicket, setServiceTicket] = useState(null);
+
+  async function submitOrder() {
+    if (cart.length === 0) return;
+
+    setRegisteringOrder(true);
+    setServiceTicket(null);
+    setNotice("");
+
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inPerson: true,
+          items: cart.map((item) => ({
+            cut: item.cutId,
+            quantity: item.quantity,
+            unitOfMeasure: item.unit,
+          })),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Não foi possível registrar o pedido.");
+      }
+
+      setServiceTicket(data.serviceTicket);
+      setCart([]);
+      setNotice("Pedido registrado com sucesso.");
+    } catch (error) {
+      setNotice(error.message);
+    } finally {
+      setRegisteringOrder(false);
+    }
+  }
+
   const [cuts, setCuts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -286,6 +329,15 @@ export default function App() {
                 A seleção estará disponível quando o cardápio carregar.
               </p>
             ) : cartRows.length === 0 ? (
+
+              <>
+                {serviceTicket !== null && (
+                  <div className="service-ticket">
+                    <strong>Sua senha</strong>
+                    <span>{serviceTicket}</span>
+                  </div>
+                 )}
+
               <div className="empty-cart">
                 <span>
                   <ShoppingBag size={36} strokeWidth={1.2} />
@@ -297,6 +349,7 @@ export default function App() {
                   Seu pedido começa aqui.
                 </p>
               </div>
+              </>
             ) : (
               <>
                 <div className="cart-items">
@@ -366,10 +419,15 @@ export default function App() {
                   >
                     Limpar seleção
                   </button>
-                  <p className="next-step">
-                    Registro do pedido e emissão de senha serão disponibilizados
-                    na próxima etapa.
-                  </p>
+                  <button
+                    className="primary"
+                    onClick={submitOrder}
+                    disabled={registeringOrder}
+                  >
+                    {registeringOrder
+                      ? "Registrando pedido…"
+                      : "Confirmar pedido"}
+                  </button>
                 </div>
               </>
             )}
