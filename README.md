@@ -2,7 +2,7 @@
 
 Sistema de autoatendimento e organização de pedidos para açougues.
 
-Primeira entrega: estrutura do projeto, UC01 (consultar cardápio) e UC02 (selecionar corte). O registro de pedidos e a emissão de senhas ainda não estão implementados.
+A aplicação permite consultar o cardápio e selecionar cortes por quantidade e unidade. O registro de pedidos e a emissão de senhas estão previstos no UC03.
 
 ## Tecnologias e estrutura
 
@@ -27,7 +27,7 @@ apps/
   web/
     src/               interface e regras de seleção
     test/              testes de quantidade e recuperação da seleção
-docs/                  decisões e relatórios por entrega
+docs/                  documentação técnica
 scripts/               execução conjunta das aplicações
 .github/workflows/     validação automática
 ```
@@ -105,7 +105,7 @@ Sem `TEST_DATABASE_URL`, o teste PostgreSQL é explicitamente ignorado. O workfl
 
 O Rollup utiliza a distribuição WebAssembly oficial por compatibilidade com ambientes Windows que restringem módulos nativos.
 
-## Limites desta entrega
+## Funcionalidades previstas
 
 - Não há autenticação, administração de cortes, pedidos persistidos, senhas, fila ou atualização dos painéis em tempo real.
 - O localStorage contém somente uma seleção, não um pedido confirmado. Não oferece acesso offline ao catálogo nem garante durabilidade.
@@ -114,4 +114,4 @@ O Rollup utiliza a distribuição WebAssembly oficial por compatibilidade com am
 - O layout foi inspirado nos requisitos do PDF; não é uma reprodução exata dos protótipos.
 - Os servidores de desenvolvimento usam loopback. Publicação e acesso pela rede do açougue precisam de configuração própria, HTTPS e revisão de implantação.
 
-Veja `docs/relatorio-01.md` para o relatório desta entrega.
+Veja [a documentação técnica](docs/arquitetura.md) para detalhes da arquitetura e das regras de seleção.
