@@ -8,7 +8,7 @@
 4. Com internet disponível, instale as dependências:
 
 ```powershell
-npm.cmd ci
+npm.cmd ci --include=dev
 ```
 
 5. Inicie:
@@ -51,9 +51,10 @@ O fluxo demonstrável termina na seleção. Pedido confirmado, emissão de senha
 | `node` ou `npm` não encontrado           | Instale Node.js LTS e reabra o terminal                                                                      |
 | PowerShell bloqueia `npm.ps1`            | Use `npm.cmd` nos comandos; não precisa mudar a política do Windows                                          |
 | `package.json` não encontrado            | Abra o terminal na pasta extraída que contém esse arquivo                                                    |
-| Dependências ausentes                    | Execute `npm.cmd ci` com internet antes de usar                                                              |
+| Dependências ausentes                    | Execute `npm.cmd ci --include=dev` com internet antes de usar                                                              |
 | Porta 4173 ocupada                       | Encerre a outra execução; ou use `$env:DEMO_PORT='4174'` antes de `npm.cmd run demo` e abra a porta indicada |
 | Página não abre                          | Confira se o terminal mostra o endereço e se continua aberto; use HTTP no endereço local                     |
 | Seleção de demonstração anterior aparece | Clique em **Limpar seleção**                                                                                 |
 
 Para desenvolvimento com PostgreSQL, siga a seção correspondente no [README](../README.md).
+

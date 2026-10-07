@@ -9,10 +9,11 @@ if errorlevel 1 (
   exit /b 1
 )
 if not exist "node_modules\vite\package.json" (
-  echo Na pasta deste arquivo, abra o terminal e execute: npm.cmd ci
+  echo Na pasta deste arquivo, abra o terminal e execute: npm.cmd ci --include=dev
   echo Depois abra iniciar.cmd novamente.
   pause
   exit /b 1
 )
 call npm.cmd run demo
 if errorlevel 1 pause
+

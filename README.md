@@ -1,120 +1,84 @@
 # Ao Ponto
 
-Sistema de autoatendimento e organização de pedidos para açougues.
+Aplicação web para autoatendimento e organização do atendimento em açougues.
 
-A aplicação permite consultar o cardápio e selecionar cortes por quantidade e unidade. O registro de pedidos e a emissão de senhas estão previstos no UC03.
+O projeto contempla três áreas: totem para clientes, painel operacional para funcionários e administração para o gerente. O fluxo de atendimento envolve consulta de cortes, seleção de quantidades, registro de pedidos e acompanhamento por senhas.
 
-## Tecnologias e estrutura
+## Tecnologias
 
-- React 19 com Vite: interface do totem.
-- Node.js e Express 5: API e futura camada de regras de negócio.
-- PostgreSQL 17: catálogo persistido.
-- npm workspaces: instalação única e aplicações separadas.
-- Testes com o runner nativo do Node.js e CI com GitHub Actions.
+- React 19 e Vite na interface.
+- Node.js e Express 5 na API.
+- PostgreSQL 17 na persistência.
+- npm workspaces na organização do repositório.
+- Node.js Test Runner e GitHub Actions na validação.
 
-```text
-apps/
-  api/
-    database/          esquema SQL
-    scripts/           migração e carga de desenvolvimento
-    src/
-      data/            catálogo fictício de demonstração
-      repositories/    acesso ao PostgreSQL
-      app.js           aplicação HTTP testável
-      config.js        configuração por ambiente
-      server.js        inicialização do servidor
-    test/              testes de API e integração PostgreSQL
-  web/
-    src/               interface e regras de seleção
-    test/              testes de quantidade e recuperação da seleção
-docs/                  documentação técnica
-scripts/               execução conjunta das aplicações
-.github/workflows/     validação automática
-```
+## Executar
 
-## Executar localmente
-
-Pré-requisitos: Node.js 22.12 ou superior e npm. Execute os comandos na raiz do repositório.
+Requisitos: Node.js 22.12 ou superior e npm. Abra o terminal na pasta que contém `package.json`.
 
 ```powershell
-npm ci
+npm.cmd ci --include=dev
+npm.cmd run demo
 ```
 
-### Demonstração sem banco de dados
+Acesse **http://127.0.0.1:4173** e mantenha o terminal aberto. Para encerrar, pressione **Ctrl+C**.
 
-```powershell
-npm run demo
-```
+No Windows, após instalar as dependências, também é possível iniciar com dois cliques em `iniciar.cmd`.
 
-Abra http://127.0.0.1:4173 e mantenha o terminal aberto. Esse comando gera o build e serve a interface e a API juntas. Após instalar as dependências, a demonstração funciona sem internet e sem PostgreSQL. No Windows, também é possível abrir `iniciar.cmd` com dois cliques.
+O modo de demonstração disponibiliza o cardápio e a seleção de cortes com dados fictícios. Interface e API usam a mesma porta e dispensam PostgreSQL e internet durante o uso. A instalação das dependências requer internet.
 
-O catálogo e os preços são fictícios e a interface identifica esse modo. Nenhum pedido é gravado ou enviado. A seleção é mantida no localStorage deste navegador; isso não implementa a sincronização offline de pedidos descrita na arquitetura.
+Se `vite` não for reconhecido, encerre os servidores locais e execute novamente `npm.cmd ci --include=dev` na raiz do projeto.
 
-Veja [o guia de execução e demonstração](docs/execucao.md) para preparar outro notebook e conferir o roteiro.
+## Catálogo e seleção
 
-### Desenvolvimento com PostgreSQL
+- Cortes com nome, descrição, categoria, preço e unidade.
+- Busca sem distinção de acentos e filtros por categoria.
+- Indicação de indisponibilidade.
+- Quantidades em quilogramas ou unidades, conforme o corte.
+- Validação de quantidade e soma de seleções repetidas.
+- Alteração, remoção e limpeza dos itens.
+- Total estimado e recuperação da seleção após recarregar.
 
-Com Docker instalado:
+O valor final dos produtos vendidos por peso depende da pesagem no balcão. A seleção no navegador representa os itens escolhidos; pedido confirmado e senha pertencem ao fluxo de registro descrito na documentação técnica.
+
+## PostgreSQL
+
+Configure `DATABASE_URL` em `apps/api/.env`. Com Docker instalado:
 
 ```powershell
 docker compose up -d db
 Copy-Item apps/api/.env.example apps/api/.env
 Remove-Item Env:CATALOG_SOURCE -ErrorAction SilentlyContinue
-npm run db:migrate
-npm run db:seed
-npm run dev
+npm.cmd run db:migrate
+npm.cmd run db:seed
+npm.cmd run dev
 ```
 
-Também é possível usar PostgreSQL instalado diretamente e ajustar `DATABASE_URL` em `apps/api/.env`. O seed insere dados fictícios sem sobrescrever cortes existentes. Execute-o apenas em bancos de desenvolvimento. As credenciais do compose são exclusivamente locais; configure outras credenciais antes de uma implantação real.
+Frontend: **http://127.0.0.1:5173**. API: **http://127.0.0.1:3001**.
 
-Frontend: http://127.0.0.1:5173. API: http://127.0.0.1:3001.
+O seed contém dados fictícios de desenvolvimento. As credenciais locais do Docker Compose devem ser substituídas em uma implantação real.
 
-## Funcionalidades
+## Estrutura
 
-### UC01 — Consultar cardápio
+```text
+apps/api/          API, persistência e testes
+apps/web/          interface e regras de seleção
+docs/              documentação técnica
+scripts/           inicialização das aplicações
+.github/workflows/ validação automática
+```
 
-- Catálogo obtido por `GET /api/cuts`.
-- Nome, descrição, categoria, preço e unidade de cada corte.
-- Filtro por categoria e busca que ignora acentos.
-- Indicação de indisponibilidade, carregamento, busca vazia e erro com opção de repetir.
-- Fonte PostgreSQL ou demonstração explicitamente configurada. Não há fallback silencioso quando o banco falha.
-
-### UC02 — Selecionar corte
-
-- Seleção em modal com navegação por teclado.
-- Quantidade em kg com até 3 casas decimais, aceitando vírgula ou ponto.
-- Quantidade inteira para unidades. Somente unidades permitidas pelo corte.
-- Limite inicial de 100 por item/unidade, incluindo adições repetidas (premissa a validar com o negócio).
-- Adição, aumento, redução, remoção, limpeza e total estimado.
-- Seleção recuperada ao recarregar. Dados corrompidos são descartados e preços são sempre obtidos do catálogo.
-- Itens removidos ou indisponíveis são retirados após nova consulta do catálogo.
-- Aviso quando o navegador não permite salvar a seleção.
-
-## Validar
+## Testes e build
 
 ```powershell
-npm test
-npm run build
+npm.cmd test
+npm.cmd run build
 ```
 
-Para executar também o teste de integração, use um banco de teste isolado com migração e seed aplicados:
+O teste de integração requer `TEST_DATABASE_URL` apontando para um banco de teste com migração e seed aplicados. Sem essa variável, ele é ignorado. O GitHub Actions executa os testes com PostgreSQL e gera o build.
 
-```powershell
-$env:TEST_DATABASE_URL='postgresql://aoponto:local_dev_only@localhost:5432/aoponto'
-npm test
-```
+## Documentação
 
-Sem `TEST_DATABASE_URL`, o teste PostgreSQL é explicitamente ignorado. O workflow do GitHub provisiona PostgreSQL 17, aplica migração e seed, executa os testes e gera o build. O status do workflow deve ser verificado no GitHub; configuração de CI não equivale a uma execução aprovada.
-
-O Rollup utiliza a distribuição WebAssembly oficial por compatibilidade com ambientes Windows que restringem módulos nativos.
-
-## Funcionalidades previstas
-
-- Não há autenticação, administração de cortes, pedidos persistidos, senhas, fila ou atualização dos painéis em tempo real.
-- O localStorage contém somente uma seleção, não um pedido confirmado. Não oferece acesso offline ao catálogo nem garante durabilidade.
-- O UC03 deverá validar disponibilidade, quantidade e preço no servidor, registrar pedido e senha em transação e impedir duplicações.
-- Em um totem compartilhado, o UC03 também deverá limpar a sessão após confirmação ou abandono para separar clientes.
-- O layout foi inspirado nos requisitos do PDF; não é uma reprodução exata dos protótipos.
-- Os servidores de desenvolvimento usam loopback. Publicação e acesso pela rede do açougue precisam de configuração própria, HTTPS e revisão de implantação.
-
-Veja [a documentação técnica](docs/arquitetura.md) para detalhes da arquitetura e das regras de seleção.
+- [Arquitetura e regras de negócio](docs/arquitetura.md)
+- [Instalação no notebook e demonstração](docs/execucao.md)
+- [Planejamento no Trello](https://trello.com/b/KojhXpU7/ao-ponto)
