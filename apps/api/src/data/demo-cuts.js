@@ -1,0 +1,11 @@
+// Dados fictícios para desenvolvimento. Nunca representam o estoque real.
+export const demoCuts = [
+  { id: 'picanha', name: 'Picanha', category: 'Bovinos', description: 'Sabor marcante e capa de gordura. Ideal para a churrasqueira.', priceCents: 7990, units: ['kg'], available: true },
+  { id: 'alcatra', name: 'Alcatra', category: 'Bovinos', description: 'Macia e versátil, para o churrasco ou o almoço de todo dia.', priceCents: 4990, units: ['kg'], available: true },
+  { id: 'patinho', name: 'Patinho', category: 'Bovinos', description: 'Corte magro para bifes, picadinhos e carne moída.', priceCents: 3990, units: ['kg'], available: true },
+  { id: 'costela', name: 'Costela bovina', category: 'Bovinos', description: 'Para preparar devagar e aproveitar cada pedaço.', priceCents: 3290, units: ['kg'], available: true },
+  { id: 'lombo', name: 'Lombo suíno', category: 'Suínos', description: 'Corte suave e magro, perfeito para assar.', priceCents: 2990, units: ['kg'], available: true },
+  { id: 'linguica', name: 'Linguiça toscana', category: 'Suínos', description: 'A companhia certa para um bom churrasco.', priceCents: 2490, units: ['kg'], available: true },
+  { id: 'peito-frango', name: 'Peito de frango', category: 'Aves', description: 'Uma opção leve para grelhar e cozinhar.', priceCents: 2190, units: ['kg'], available: true },
+  { id: 'frango-inteiro', name: 'Frango inteiro', category: 'Aves', description: 'Para reunir a família em volta da mesa.', priceCents: 3490, units: ['un'], available: false },
+];
