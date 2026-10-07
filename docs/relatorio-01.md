@@ -35,10 +35,10 @@ A seleção fica no navegador para sobreviver a um recarregamento. Não foi impl
 
 ## Atualização externa
 
-Trello: pendente de conexão/login. Nenhum cartão foi movido ou marcado como concluído sem acesso ao seu conteúdo.
+Trello atualizado em 07/10/2026: 24 cartões criados com descrições, dependências e critérios de aceite (14 casos de uso, 8 tarefas técnicas e 2 definições de escopo dos protótipos). UC01, UC02 e TEC01 estão em CONCLUIDO; UC03 e TEC08 (homologação) estão em BACKLOG DA SPRINT; os outros 19 estão em PRODUCT BACKLOG. EM ANDAMENTO e TESTE estão vazios porque não há implementação ativa ou validação técnica pendente nesta entrega. Quadro: https://trello.com/b/KojhXpU7/ao-ponto.
 
 GitHub: entrega enviada para `main`, organizada em commits por estrutura e caso de uso. Publicação confirmada no repositório e CI aprovado.
 
 ## Próxima etapa
 
-UC03 — Registrar pedido: contrato da API, tabelas de pedidos e itens, transação para emissão de senha, idempotência, confirmação no totem e separação de sessões entre clientes. Antes disso, conferir os critérios dos cartões UC01 e UC02 no Trello.
+UC03 — Registrar pedido: contrato da API, tabelas de pedidos e itens, transação para emissão de senha, idempotência, confirmação no totem e separação de sessões entre clientes. O TEC08 acompanha a homologação dos detalhes e da interface do UC01/UC02 com o usuário.
