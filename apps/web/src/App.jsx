@@ -211,7 +211,9 @@ export default function App() {
                 {category === "Todos" ? "Conheça nossos cortes" : category}
               </h2>
               <span>
-                {loading ? "Carregando…" : `${visibleCuts.length} opções`}
+                {loading
+                  ? "Carregando…"
+                  : `${visibleCuts.length} ${visibleCuts.length === 1 ? "opção" : "opções"}`}
               </span>
             </div>
             {loading ? (

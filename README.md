@@ -43,11 +43,14 @@ npm ci
 ### Demonstração sem banco de dados
 
 ```powershell
-$env:CATALOG_SOURCE='demo'
-npm run dev
+npm run demo
 ```
 
-Abra http://127.0.0.1:5173. O catálogo e os preços são fictícios e a interface identifica esse modo. Nenhum pedido é gravado ou enviado. A seleção é mantida no localStorage deste navegador; isso não implementa a sincronização offline de pedidos descrita na arquitetura.
+Abra http://127.0.0.1:4173 e mantenha o terminal aberto. Esse comando gera o build e serve a interface e a API juntas. Após instalar as dependências, a demonstração funciona sem internet e sem PostgreSQL. No Windows, também é possível abrir `iniciar.cmd` com dois cliques.
+
+O catálogo e os preços são fictícios e a interface identifica esse modo. Nenhum pedido é gravado ou enviado. A seleção é mantida no localStorage deste navegador; isso não implementa a sincronização offline de pedidos descrita na arquitetura.
+
+Veja [o guia de execução e demonstração](docs/execucao.md) para preparar outro notebook e conferir o roteiro.
 
 ### Desenvolvimento com PostgreSQL
 
