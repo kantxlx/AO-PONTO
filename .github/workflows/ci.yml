@@ -3,6 +3,23 @@ on: [push, pull_request]
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: aoponto
+          POSTGRES_PASSWORD: ci_only
+          POSTGRES_DB: aoponto
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aoponto"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://aoponto:ci_only@localhost:5432/aoponto
+      TEST_DATABASE_URL: postgresql://aoponto:ci_only@localhost:5432/aoponto
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -10,5 +27,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run db:seed
       - run: npm test
       - run: npm run build
