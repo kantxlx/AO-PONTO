@@ -1,21 +1,18 @@
 import express from "express";
+import { createCatalogService } from "./services/catalogService.js";
+import { createCatalogController } from "./controllers/catalogController.js";
+import { createCatalogRoutes } from "./routes/catalogRoutes.js";
+import { createHealthRoutes } from "./routes/healthRoutes.js";
+import { errorHandler, notFound } from "./middlewares/errorHandler.js";
 export function createApp(repository, { demo = false, webRoot } = {}) {
   const app = express();
   app.disable("x-powered-by");
-  app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
-  app.get("/api/cuts", async (_req, res) => {
-    res.set("Cache-Control", "no-store");
-    res.json({ cuts: await repository.list(), demo });
-  });
+  const service = createCatalogService(repository);
+  const controller = createCatalogController(service, { demo });
+  app.use("/api/health", createHealthRoutes());
+  app.use("/api/cuts", createCatalogRoutes(controller));
   if (webRoot) app.use(express.static(webRoot));
-  app.use((_req, res) =>
-    res.status(404).json({ message: "Recurso não encontrado." }),
-  );
-  app.use((error, _req, res, _next) => {
-    console.error("Falha ao consultar catálogo:", error.message);
-    res.status(503).json({
-      message: "Não foi possível carregar o cardápio. Tente novamente.",
-    });
-  });
+  app.use(notFound);
+  app.use(errorHandler);
   return app;
 }

@@ -16,6 +16,12 @@ Os casos de uso seguem o Documento de Arquitetura de Software do Ao Ponto. O UC0
 
 ## Consulta do cardápio
 
+A API segue o fluxo `routes → controllers → services → repositories → PostgreSQL`. Os models representam os dados do domínio, e os middlewares centralizam respostas de erro. `app.js` monta as dependências; `server.js` inicia o servidor. No frontend, os componentes React compõem a apresentação.
+
+O controller traduz a requisição e a resposta HTTP. O service organiza a operação do catálogo e usa o model para retornar os campos públicos. O repositório mantém o SQL e utiliza a conexão centralizada em `src/database/pool.js`. As novas funcionalidades devem seguir essa separação, sem adicionar regras de negócio diretamente às rotas.
+
+O esquema completo de persistência e os comandos para criação estão em [Banco de dados](banco-de-dados.md).
+
 O frontend consulta `GET /api/cuts`. A API utiliza uma camada de repositório para acessar o PostgreSQL, mantendo as consultas SQL fora das rotas HTTP.
 
 A interface apresenta os cortes com nome, descrição, preço, unidade e disponibilidade. O catálogo permite filtro por categoria e busca que ignora acentos. Falhas de consulta exibem uma mensagem com opção de tentar novamente.

@@ -61,7 +61,16 @@ O seed contém dados fictícios de desenvolvimento. As credenciais locais do Doc
 ## Estrutura
 
 ```text
-apps/api/          API, persistência e testes
+apps/api/src/
+  routes/          endpoints HTTP
+  controllers/     requisições e respostas
+  services/        regras de aplicação
+  models/          representação dos dados do domínio
+  repositories/    consultas de persistência
+  database/        conexão PostgreSQL
+  middlewares/     erros e tratamento de requisições
+apps/api/database/ migrações SQL
+apps/api/test/     testes de API e integração
 apps/web/          interface e regras de seleção
 docs/              documentação técnica
 scripts/           inicialização das aplicações
@@ -80,5 +89,6 @@ O teste de integração requer `TEST_DATABASE_URL` apontando para um banco de te
 ## Documentação
 
 - [Arquitetura e regras de negócio](docs/arquitetura.md)
+- [Banco de dados e migrações](docs/banco-de-dados.md)
 - [Instalação no notebook e demonstração](docs/execucao.md)
 - [Planejamento no Trello](https://trello.com/b/KojhXpU7/ao-ponto)

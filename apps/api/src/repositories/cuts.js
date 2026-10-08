@@ -1,4 +1,4 @@
-import pg from "pg";
+import { createPool } from "../database/pool.js";
 import { demoCuts } from "../data/demo-cuts.js";
 export function createCutRepository(config) {
   if (config.catalogSource === "demo") {
@@ -17,7 +17,7 @@ export function createCutRepository(config) {
       "Configure DATABASE_URL ou escolha CATALOG_SOURCE=demo para demonstração local.",
     );
   }
-  const pool = new pg.Pool({ connectionString: config.databaseUrl });
+  const pool = createPool(config.databaseUrl);
   return {
     async list() {
       const { rows } = await pool.query(
