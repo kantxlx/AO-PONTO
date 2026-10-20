@@ -127,9 +127,9 @@ export default function App() {
       setNotice("Pedido registrado com sucesso.");
     } catch (error) {
       setNotice(
-        navigator.onLine
-          ? error.message
-          : "Pedido salvo neste navegador, aguardando conexão. A senha só será emitida após confirmação do servidor.",
+        error instanceof TypeError || !navigator.onLine
+          ? "Pedido salvo neste navegador, aguardando conexão. A senha só será emitida após confirmação do servidor."
+          : error.message,
       );
     } finally {
       submitting.current = false;
