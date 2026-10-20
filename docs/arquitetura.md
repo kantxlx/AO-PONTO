@@ -10,6 +10,7 @@ O sistema utiliza React/Vite, API Express e PostgreSQL, organizados em npm works
 | `apps/web/src/Shell.jsx` | Navegação, sessão, cabeçalho e rodapé compartilhados                         |
 | `apps/web/src/pages` | Telas de login, atendimento, administração, painel e acompanhamento |
 | `apps/web/src/components` | Diálogo acessível, fotos dos cortes e relógio compartilhados |
+| `apps/web/src/components/OrderSuccess.jsx` | Confirmação do totem em tela inteira, QR code e reinício após 30 segundos |
 | `apps/web/src/format.js` | Formatação e leitura de preços com vírgula ou ponto |
 | `apps/web/public/images` | Imagens WebP locais do catálogo e da abertura |
 | `routes` e `controllers` | Contratos HTTP, sessões, permissões de acesso e SSE                          |

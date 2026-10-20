@@ -24,13 +24,16 @@ import {
   parseQuantity,
 } from "./cart.js";
 import { useRef } from "react";
-import Ticket from "./Ticket.jsx";
+import OrderSuccess from "./components/OrderSuccess.jsx";
 import CutPhoto from "./components/CutPhoto.jsx";
-import Modal from "./components/Modal.jsx";
 function readReceipt() {
   try {
     const data = JSON.parse(sessionStorage.getItem("ao-ponto.receipt"));
-    return data?.id && Number.isInteger(data?.ticket?.number) ? data : null;
+    return data?.id &&
+      Number.isInteger(data?.ticket?.number) &&
+      data.kioskExpiresAt > Date.now()
+      ? data
+      : null;
   } catch {
     return null;
   }
@@ -41,25 +44,16 @@ const money = (value) =>
   );
 export default function App() {
   const [registeringOrder, setRegisteringOrder] = useState(false);
-  const [serviceTicket, setServiceTicket] = useState(
-    () => readReceipt()?.ticket.number ?? null,
-  );
   const [receipt, setReceipt] = useState(readReceipt);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [sort, setSort] = useState("recommended");
-  const [review, setReview] = useState(false);
-  const [mobileCart, setMobileCart] = useState(false);
+  const [stage, setStage] = useState("catalog");
   const [editingItem, setEditingItem] = useState(null);
-  const cartPanel = useRef(null),
-    cartTrigger = useRef(null);
+  const stageHeading = useRef(null);
   useEffect(() => {
-    const media = window.matchMedia("(min-width: 901px)");
-    const closeWhenWide = () => {
-      if (media.matches) setMobileCart(false);
-    };
-    media.addEventListener("change", closeWhenWide);
-    return () => media.removeEventListener("change", closeWhenWide);
-  }, []);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    if (stage === "cart") stageHeading.current?.focus();
+  }, [stage]);
   useEffect(() => {
     try {
       if (receipt)
@@ -67,39 +61,6 @@ export default function App() {
       else sessionStorage.removeItem("ao-ponto.receipt");
     } catch {}
   }, [receipt]);
-  useEffect(() => {
-    if (!mobileCart) return;
-    const previous = document.activeElement;
-    const key = (e) => {
-      if (document.querySelector("dialog[open]")) return;
-      if (e.key === "Escape") setMobileCart(false);
-      if (e.key === "Tab") {
-        const controls = [
-          ...cartPanel.current.querySelectorAll(
-            "button:not(:disabled),a[href],input:not(:disabled)",
-          ),
-        ];
-        const first = controls[0],
-          last = controls.at(-1);
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
-      }
-    };
-    cartPanel.current.querySelector("button")?.focus();
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", key);
-    return () => {
-      document.body.style.overflow = overflow;
-      document.removeEventListener("keydown", key);
-      previous?.focus();
-    };
-  }, [mobileCart]);
   const [inPerson, setInPerson] = useState(false);
   const [pendingOrder, setPendingOrder] = useState(() => {
     try {
@@ -159,7 +120,6 @@ export default function App() {
     if (cart.length === 0 && !pendingOrder) return;
     submitting.current = true;
     setRegisteringOrder(true);
-    setServiceTicket(null);
     setNotice("");
 
     try {
@@ -195,9 +155,8 @@ export default function App() {
         );
       }
 
-      setServiceTicket(data.order.ticket.number);
-      setReceipt(data.order);
-      if (window.matchMedia("(max-width: 900px)").matches) setMobileCart(true);
+      setReceipt({ ...data.order, kioskExpiresAt: Date.now() + 30000 });
+      setStage("catalog");
       localStorage.setItem("ao-ponto.selection.v1", "[]");
       localStorage.removeItem("ao-ponto.pending-order");
       setPendingOrder(null);
@@ -248,7 +207,6 @@ export default function App() {
       .then((r) => {
         if (active && r.status === 404) {
           setReceipt(null);
-          setServiceTicket(null);
         }
       })
       .catch(() => {});
@@ -279,7 +237,6 @@ export default function App() {
   }
   function openSelection(cut, event) {
     setEditingItem(null);
-    setServiceTicket(null);
     setReceipt(null);
     triggerRef.current = event.currentTarget;
     setSelected(cut);
@@ -387,8 +344,21 @@ export default function App() {
     (total, item) => total + subtotalCents(item.cut.priceCents, item.quantity),
     0,
   );
+  function startNewOrder() {
+    setReceipt(null);
+    setCart([]);
+    setInPerson(false);
+    setStage("catalog");
+    setSearch("");
+    setCategory("Todos");
+    setOnlyAvailable(false);
+    setSort("recommended");
+    setNotice("");
+    window.scrollTo({ top: 0, behavior: "instant" });
+    requestAnimationFrame(() => document.getElementById("conteudo")?.focus());
+  }
   return (
-    <div className="app">
+    <div className={`app kiosk-app stage-${stage}`}>
       <main id="conteudo" tabIndex={-1} className="catalog-main">
         <section className="intro" aria-label="Bem-vindo ao Ao Ponto">
           <div className="intro-copy">
@@ -428,10 +398,10 @@ export default function App() {
             <b>01</b> Escolha os cortes
           </span>
           <span>
-            <b>02</b> Confirme seu pedido
+            <b>02</b> Revise no carrinho
           </span>
           <span>
-            <b>03</b> Aguarde sua senha
+            <b>03</b> Receba sua senha
           </span>
           <small>
             <ShieldCheck size={16} />
@@ -599,225 +569,180 @@ export default function App() {
               </div>
             )}
           </section>
-          {mobileCart && (
+          <section className="kiosk-checkout" aria-label="Carrinho">
             <button
-              className="cart-shade"
-              aria-label="Fechar pedido"
-              onClick={() => setMobileCart(false)}
-            />
-          )}
-          <aside
-            ref={cartPanel}
-            className={`cart ${mobileCart ? "is-open" : ""}`}
-            aria-label="Seu pedido"
-            role={mobileCart ? "dialog" : undefined}
-            aria-modal={mobileCart ? true : undefined}
-          >
-            <div className="cart-heading">
-              <h2>
-                <ReceiptText size={21} />{" "}
-                {serviceTicket ? "Pedido confirmado" : "Seu pedido"}{" "}
-                {!serviceTicket && <small>{cart.length}</small>}
-              </h2>
-              <button
-                type="button"
-                className="mobile-cart-close icon-button"
-                aria-label="Fechar seu pedido"
-                onClick={() => setMobileCart(false)}
-              >
-                <X size={19} />
-              </button>
-            </div>
-            {loading || error ? (
-              <p className="cart-message">
-                A seleção estará disponível quando o cardápio carregar.
-              </p>
-            ) : cartRows.length === 0 ? (
-              <>
-                {serviceTicket !== null && (
-                  <div className="service-ticket" role="status">
-                    <div className="service-ticket-header">
-                      <span>Pedido registrado</span>
-                      <span className="service-ticket-check">✓</span>
-                    </div>
-
-                    <div className="service-ticket-content">
-                      <p>Sua senha de atendimento</p>
-                      <strong>{String(serviceTicket).padStart(3, "0")}</strong>
-                    </div>
-
-                    {receipt && <Ticket order={receipt} />}
-                    <div className="service-ticket-footer">
-                      Aguarde sua senha ser chamada no painel.
-                    </div>
-                    <button
-                      className="primary new-order"
-                      onClick={() => {
-                        setServiceTicket(null);
-                        setReceipt(null);
-                        setMobileCart(false);
-                      }}
-                    >
-                      Iniciar novo pedido <ArrowRight size={16} />
-                    </button>
-                  </div>
-                )}
-
-                {serviceTicket === null && (
-                  <div className="empty-cart">
-                    <span>
-                      <ShoppingBag size={36} strokeWidth={1.2} />
-                    </span>
-                    <h3>
-                      Seu próximo prato
-                      <br />
-                      começa aqui.
-                    </h3>
-                    <p>
-                      Adicione seus cortes favoritos.
-                      <br />
-                      Seu pedido começa aqui.
-                    </p>
-                    <div className="empty-cart-tip">
-                      <Plus size={14} />
-                      Toque em Adicionar para começar
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="cart-items">
-                  {cartRows.map((item) => (
-                    <div
-                      className="cart-item"
-                      key={`${item.cutId}:${item.unit}`}
-                    >
-                      <div className="cart-item-title">
-                        <div className="cart-product">
-                          <CutPhoto cut={item.cut} />
-                          <strong>
-                            {item.cut.name}
-                            <small>
-                              {money(item.cut.priceCents)}/{item.unit}
-                            </small>
-                          </strong>
-                        </div>
-                        <button
-                          className="icon-button"
-                          aria-label={`Remover ${item.cut.name}`}
-                          disabled={!!pendingOrder || registeringOrder}
-                          onClick={() =>
-                            setCart(cart.filter((row) => row !== item.original))
-                          }
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                      <div className="cart-item-bottom">
-                        <div className="quantity-stepper">
-                          <button
-                            aria-label={`Diminuir ${item.cut.name}`}
-                            disabled={
-                              !!pendingOrder ||
-                              registeringOrder ||
-                              item.quantity <= (item.unit === "kg" ? 0.25 : 1)
-                            }
-                            onClick={() => changeQuantity(item.original, -1)}
-                          >
-                            <Minus size={13} />
-                          </button>
-                          <button
-                            className="edit-quantity"
-                            aria-label={`Editar quantidade de ${item.cut.name}`}
-                            disabled={!!pendingOrder || registeringOrder}
-                            onClick={(event) => {
-                              openSelection(item.cut, event);
-                              setEditingItem(item.original);
-                              setQuantity(String(item.quantity));
-                              setUnit(item.unit);
-                            }}
-                          >
-                            {item.quantity.toLocaleString("pt-BR")} {item.unit}
-                            <Pencil size={10} />
-                          </button>
-                          <button
-                            aria-label={`Aumentar ${item.cut.name}`}
-                            disabled={
-                              !!pendingOrder ||
-                              registeringOrder ||
-                              item.quantity + (item.unit === "kg" ? 0.25 : 1) >
-                                100
-                            }
-                            onClick={() => changeQuantity(item.original, 1)}
-                          >
-                            <Plus size={13} />
-                          </button>
-                        </div>
-                        <span>
-                          {money(
-                            subtotalCents(item.cut.priceCents, item.quantity),
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="cart-summary">
-                  <div>
-                    <span>Total estimado</span>
-                    <strong>{money(totalCents)}</strong>
-                  </div>
-                  <p>O valor final depende do peso no balcão.</p>
-                  <label className="presential">
-                    <input
-                      type="checkbox"
-                      checked={inPerson}
-                      disabled={!!pendingOrder || registeringOrder}
-                      onChange={(e) => setInPerson(e.target.checked)}
-                    />{" "}
-                    Quero escolher a peça no balcão
-                  </label>
-                  <button
-                    className="clear-cart"
-                    disabled={!!pendingOrder || registeringOrder}
-                    onClick={() => {
-                      setCart([]);
-                      setNotice("Seleção limpa.");
-                    }}
-                  >
-                    Limpar seleção
-                  </button>
+              className="secondary checkout-back"
+              onClick={() => setStage("catalog")}
+            >
+              ← Continuar escolhendo
+            </button>
+            <p className="eyebrow">CONFIRA ANTES DE ENVIAR</p>
+            <h1 ref={stageHeading} tabIndex={-1}>
+              Seu carrinho
+            </h1>
+            <p className="checkout-description">
+              Confira os cortes e as quantidades. Ao finalizar, seu pedido será
+              enviado ao açougue.
+            </p>
+            <aside className="cart kiosk-cart" aria-label="Itens do carrinho">
+              <div className="cart-heading">
+                <h2>
+                  <ReceiptText size={21} /> Seu pedido{" "}
+                  <small>{cart.length}</small>
+                </h2>
+              </div>
+              {loading || error ? (
+                <p className="cart-message">
+                  A seleção estará disponível quando o cardápio carregar.
+                </p>
+              ) : cartRows.length === 0 ? (
+                <div className="empty-cart">
+                  <ShoppingBag size={36} />
+                  <h3>Seu carrinho está vazio.</h3>
+                  <p>Escolha seus cortes para começar.</p>
                   <button
                     className="primary"
-                    onClick={() =>
-                      pendingOrder ? submitOrder() : setReview(true)
-                    }
-                    disabled={
-                      registeringOrder ||
-                      (!pendingOrder && !businessStatus?.open)
-                    }
+                    onClick={() => setStage("catalog")}
                   >
-                    {registeringOrder ? (
-                      "Registrando pedido…"
-                    ) : pendingOrder ? (
-                      "Tentar confirmar novamente"
-                    ) : (
-                      <>
-                        Revisar pedido <ArrowRight size={17} />
-                      </>
-                    )}
+                    Escolher cortes <ArrowRight size={18} />
                   </button>
                 </div>
-              </>
-            )}
-            <div className="cart-footer">
-              <span>
-                <Clock3 size={14} />
-                Seu pedido será preparado após a chamada.
-              </span>
-            </div>
-          </aside>
+              ) : (
+                <>
+                  <div className="cart-items">
+                    {cartRows.map((item) => (
+                      <div
+                        className="cart-item"
+                        key={`${item.cutId}:${item.unit}`}
+                      >
+                        <div className="cart-item-title">
+                          <div className="cart-product">
+                            <CutPhoto cut={item.cut} />
+                            <strong>
+                              {item.cut.name}
+                              <small>
+                                {money(item.cut.priceCents)}/{item.unit}
+                              </small>
+                            </strong>
+                          </div>
+                          <button
+                            className="icon-button"
+                            aria-label={`Remover ${item.cut.name}`}
+                            disabled={!!pendingOrder || registeringOrder}
+                            onClick={() =>
+                              setCart(
+                                cart.filter((row) => row !== item.original),
+                              )
+                            }
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                        <div className="cart-item-bottom">
+                          <div className="quantity-stepper">
+                            <button
+                              aria-label={`Diminuir ${item.cut.name}`}
+                              disabled={
+                                !!pendingOrder ||
+                                registeringOrder ||
+                                item.quantity <= (item.unit === "kg" ? 0.25 : 1)
+                              }
+                              onClick={() => changeQuantity(item.original, -1)}
+                            >
+                              <Minus size={13} />
+                            </button>
+                            <button
+                              className="edit-quantity"
+                              aria-label={`Editar quantidade de ${item.cut.name}`}
+                              disabled={!!pendingOrder || registeringOrder}
+                              onClick={(event) => {
+                                openSelection(item.cut, event);
+                                setEditingItem(item.original);
+                                setQuantity(String(item.quantity));
+                                setUnit(item.unit);
+                              }}
+                            >
+                              {item.quantity.toLocaleString("pt-BR")}{" "}
+                              {item.unit}
+                              <Pencil size={10} />
+                            </button>
+                            <button
+                              aria-label={`Aumentar ${item.cut.name}`}
+                              disabled={
+                                !!pendingOrder ||
+                                registeringOrder ||
+                                item.quantity +
+                                  (item.unit === "kg" ? 0.25 : 1) >
+                                  100
+                              }
+                              onClick={() => changeQuantity(item.original, 1)}
+                            >
+                              <Plus size={13} />
+                            </button>
+                          </div>
+                          <span>
+                            {money(
+                              subtotalCents(item.cut.priceCents, item.quantity),
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="cart-summary">
+                    <div>
+                      <span>Total estimado</span>
+                      <strong>{money(totalCents)}</strong>
+                    </div>
+                    <p>O valor final depende do peso no balcão.</p>
+                    <label className="presential">
+                      <input
+                        type="checkbox"
+                        checked={inPerson}
+                        disabled={!!pendingOrder || registeringOrder}
+                        onChange={(e) => setInPerson(e.target.checked)}
+                      />{" "}
+                      Quero escolher a peça no balcão
+                    </label>
+                    <button
+                      className="clear-cart"
+                      disabled={!!pendingOrder || registeringOrder}
+                      onClick={() => {
+                        setCart([]);
+                        setNotice("Seleção limpa.");
+                      }}
+                    >
+                      Limpar seleção
+                    </button>
+                    <button
+                      className="primary"
+                      onClick={submitOrder}
+                      disabled={
+                        registeringOrder ||
+                        (!pendingOrder && !businessStatus?.open)
+                      }
+                    >
+                      {registeringOrder ? (
+                        "Registrando pedido…"
+                      ) : pendingOrder ? (
+                        "Tentar confirmar novamente"
+                      ) : (
+                        <>
+                          Enviar pedido ao açougue <ArrowRight size={17} />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+              <div className="cart-footer">
+                <span>
+                  <Clock3 size={14} />
+                  Seu pedido será preparado após a chamada.
+                </span>
+              </div>
+            </aside>
+          </section>
         </div>
         <p
           role="status"
@@ -928,80 +853,29 @@ export default function App() {
           Imagens ilustrativas. Os valores dos cortes por peso são estimados até
           a pesagem no balcão.
         </p>
-        {review && (
-          <Modal
-            title="Confira seu pedido"
-            eyebrow="QUASE NO PONTO"
-            onClose={() => setReview(false)}
-          >
-            <p className="modal-description">
-              Tudo certo com a sua escolha? Ao confirmar, você recebe uma senha
-              de atendimento.
-            </p>
-            <ul className="review-items">
-              {cartRows.map((item) => (
-                <li key={`${item.cutId}:${item.unit}`}>
-                  <CutPhoto cut={item.cut} />
-                  <span>
-                    <strong>{item.cut.name}</strong>
-                    <small>
-                      {item.quantity.toLocaleString("pt-BR")} {item.unit}
-                    </small>
-                  </span>
-                  <b>
-                    {money(subtotalCents(item.cut.priceCents, item.quantity))}
-                  </b>
-                </li>
-              ))}
-            </ul>
-            <div className="review-total">
-              <span>Total estimado</span>
-              <strong>{money(totalCents)}</strong>
-            </div>
-            {inPerson && (
-              <p className="review-presential">
-                <Check size={16} />
-                Você vai escolher a peça no balcão.
-              </p>
-            )}
-            <p className="field-help">
-              O valor final depende da pesagem no balcão.
-            </p>
-            <div className="modal-actions">
-              <button className="secondary" onClick={() => setReview(false)}>
-                Continuar escolhendo
-              </button>
-              <button
-                className="primary"
-                disabled={registeringOrder}
-                onClick={() => {
-                  setReview(false);
-                  submitOrder();
-                }}
-              >
-                Confirmar e gerar senha <ArrowRight size={17} />
-              </button>
-            </div>
-          </Modal>
-        )}
-        {!mobileCart && (
-          <button
-            ref={cartTrigger}
-            className="mobile-cart-trigger"
-            onClick={() => setMobileCart(true)}
-          >
-            <ShoppingBag size={19} />
+        {stage === "catalog" && !receipt && (
+          <div className="kiosk-cart-bar">
             <span>
-              {serviceTicket
-                ? `Senha ${String(serviceTicket).padStart(3, "0")}`
-                : `Ver meu pedido (${cart.length})`}
+              <ShoppingBag size={22} />
+              <b>
+                {cart.length}{" "}
+                {cart.length === 1
+                  ? "corte selecionado"
+                  : "cortes selecionados"}
+              </b>
+              <small>Total estimado</small>
+              <strong>{money(totalCents)}</strong>
             </span>
-            <strong>
-              {money(serviceTicket ? (receipt?.totalCents ?? 0) : totalCents)}
-            </strong>
-            <ArrowRight size={17} />
-          </button>
+            <button
+              className="primary"
+              onClick={() => setStage("cart")}
+              disabled={loading || !!error}
+            >
+              Ir para o carrinho <ArrowRight size={21} />
+            </button>
+          </div>
         )}
+        {receipt && <OrderSuccess order={receipt} onNewOrder={startNewOrder} />}
       </main>
     </div>
   );

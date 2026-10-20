@@ -1,0 +1,329 @@
+.kiosk-app.stage-catalog .catalog-layout {
+  display: block;
+}
+.kiosk-app.stage-catalog .kiosk-checkout {
+  display: none;
+}
+.kiosk-app.stage-catalog .grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.kiosk-app {
+  padding-bottom: 105px;
+}
+.kiosk-app.stage-cart .intro,
+.kiosk-app.stage-cart .how-it-works,
+.kiosk-app.stage-cart .catalog {
+  display: none;
+}
+.kiosk-app.stage-cart .catalog-layout {
+  display: block;
+}
+.kiosk-checkout {
+  max-width: 1000px;
+  margin: 32px auto 60px;
+}
+.kiosk-checkout > h1 {
+  font-family: Georgia, serif;
+  font-size: 42px;
+  margin: 10px 0;
+  outline: none;
+}
+.checkout-back {
+  margin-bottom: 30px;
+  min-height: 48px;
+}
+.checkout-description {
+  color: #75675c;
+  line-height: 1.65;
+  margin-bottom: 28px;
+}
+.kiosk-checkout .kiosk-cart {
+  display: block;
+  position: static;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  border-radius: 16px;
+  transform: none;
+  box-shadow: 0 8px 28px #37211609;
+}
+.kiosk-cart .cart-items {
+  max-height: none;
+  overflow: visible;
+}
+.kiosk-cart .cart-item {
+  padding: 24px;
+}
+.kiosk-cart .cart-item-title {
+  margin-bottom: 16px;
+}
+.kiosk-cart .cart-product img {
+  width: 76px;
+  height: 64px;
+}
+.kiosk-cart .cart-product strong {
+  font-size: 20px;
+}
+.kiosk-cart .quantity-stepper button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.kiosk-cart .quantity-stepper .edit-quantity {
+  min-width: 100px;
+}
+.kiosk-cart .cart-item-bottom > span {
+  font-size: 22px;
+}
+.kiosk-cart .cart-summary {
+  padding: 28px;
+  background: #f7f2e9;
+}
+.kiosk-cart .cart-summary > div > strong {
+  font-size: 32px;
+}
+.kiosk-cart .presential {
+  padding: 20px 0;
+  font-size: 16px;
+}
+.kiosk-cart .cart-summary > .primary {
+  min-height: 64px;
+  font-size: 19px;
+}
+.kiosk-cart-bar {
+  position: fixed;
+  z-index: 45;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 18px max(24px, calc((100vw - 1400px) / 2));
+  border-top: 1px solid #dfd5c9;
+  background: #fffdf8;
+  box-shadow: 0 -5px 25px #3822180b;
+}
+.kiosk-cart-bar > span {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.kiosk-cart-bar > span > svg {
+  color: #8d292d;
+}
+.kiosk-cart-bar small {
+  color: #766a60;
+  margin-left: 20px;
+}
+.kiosk-cart-bar strong {
+  color: #8d292d;
+  font-size: 26px;
+}
+.kiosk-cart-bar .primary {
+  min-height: 58px;
+  min-width: 280px;
+  font-size: 18px;
+}
+dialog.kiosk-success {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 24px;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(ellipse at top, #fffdf8, #f0e6d7);
+  color: #38251c;
+  overflow: auto;
+  text-align: center;
+}
+.kiosk-success::backdrop {
+  background: #f5efe5;
+}
+.success-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font:
+    bold 26px Georgia,
+    serif;
+}
+.success-brand svg {
+  color: #8d292d;
+}
+.success-content {
+  max-width: 800px;
+  margin: 18px auto;
+}
+.success-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e4ebdf;
+  color: #426246;
+  margin-bottom: 14px;
+}
+.success-content h1 {
+  font:
+    normal clamp(28px, 3vw, 44px)/1.15 Georgia,
+    serif;
+  margin: 12px 0;
+}
+.success-content > p:not(.eyebrow) {
+  color: #786b5d;
+  line-height: 1.5;
+}
+.kiosk-ticket {
+  margin: 22px auto;
+  padding: 16px 30px;
+  max-width: 520px;
+  background: #fffdf8;
+  border: 1px solid #dbcab6;
+  border-radius: 16px;
+  box-shadow: 0 12px 35px #35211508;
+}
+.kiosk-ticket > span {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #88725c;
+}
+.kiosk-ticket > strong {
+  display: block;
+  font:
+    bold clamp(100px, 16vh, 180px)/1.15 Georgia,
+    serif;
+  color: #8d292d;
+  font-variant-numeric: tabular-nums;
+}
+.success-follow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+  gap: 18px;
+  margin: 12px auto 20px;
+}
+.success-follow img {
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+.success-follow p {
+  font-size: 15px;
+  line-height: 1.65;
+}
+.success-follow small {
+  color: #7f7163;
+  font-size: 11px;
+}
+.success-content > .primary {
+  min-height: 58px;
+  width: min(100%, 400px);
+  margin: auto;
+  justify-content: center;
+  font-size: 19px;
+}
+.success-countdown {
+  font-size: 13px;
+  margin: 14px 0;
+}
+.success-footer {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #947e67;
+  margin: 20px 0 5px;
+}
+@media (max-width: 1100px) {
+  .kiosk-app.stage-catalog .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .kiosk-app.stage-catalog .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kiosk-cart-bar {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+  .kiosk-cart-bar > span {
+    gap: 6px;
+    flex-wrap: wrap;
+    max-width: 45%;
+  }
+  .kiosk-cart-bar > span > svg,
+  .kiosk-cart-bar small {
+    display: none;
+  }
+  .kiosk-cart-bar b {
+    font-size: 11px;
+    width: 100%;
+  }
+  .kiosk-cart-bar strong {
+    font-size: 20px;
+  }
+  .kiosk-cart-bar .primary {
+    min-width: 0;
+    min-height: 56px;
+    font-size: 14px;
+    padding: 12px;
+  }
+  .kiosk-checkout {
+    margin: 20px auto;
+  }
+  .kiosk-checkout > h1 {
+    font-size: 34px;
+  }
+  .kiosk-cart .cart-item {
+    padding: 18px;
+  }
+  .kiosk-cart .cart-summary {
+    padding: 20px;
+  }
+  .kiosk-cart .cart-product strong {
+    font-size: 17px;
+  }
+  .kiosk-cart .cart-item-bottom > span {
+    font-size: 18px;
+  }
+  .kiosk-cart .cart-summary > .primary {
+    font-size: 16px;
+  }
+  dialog.kiosk-success {
+    padding: 20px 16px;
+  }
+  .success-content {
+    margin: 18px auto;
+  }
+  .success-follow {
+    gap: 12px;
+  }
+  .success-follow p {
+    font-size: 13px;
+  }
+  .success-follow img {
+    width: 90px;
+    height: 90px;
+  }
+  .success-follow small {
+    font-size: 10px;
+  }
+  .kiosk-ticket {
+    margin: 18px auto;
+  }
+}
+@media (max-width: 430px) {
+  .kiosk-app.stage-catalog .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -6,7 +6,7 @@ A identidade do Ao Ponto segue um açougue tradicional: vermelho vinho nas açõ
 
 - Cardápio com fotografias ilustrativas locais, busca, categorias, ordenação e filtro de disponibilidade.
 - Quantidades sugeridas, subtotal imediato, edição do carrinho e revisão antes de emitir a senha.
-- Resumo fixo no notebook e gaveta de pedido no celular; comprovante recuperado na mesma aba após recarregar.
+- Fluxo de totem com carrinho em tela própria, envio ao açougue e senha em tela inteira. O botão **Novo pedido** ou a contagem de 30 segundos libera a tela para o próximo cliente e limpa seleção e filtros. A confirmação é recuperada na mesma aba apenas durante esse prazo.
 - Atendimento com indicadores, busca por senha/pedido/corte, filtros de situação e confirmação da entrega.
 - Administração separada em catálogo, equipe e horários; edição em diálogos e recuperação de cortes arquivados.
 - Painel com chamada em destaque, histórico recente, relógio e aviso sonoro opcional.

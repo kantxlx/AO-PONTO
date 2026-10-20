@@ -7,6 +7,7 @@ import "./admin.css";
 import "./public-panels.css";
 import "./operations-responsive.css";
 import "./readability.css";
+import "./kiosk.css";
 import { allImages } from "./media.js";
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   navigator.serviceWorker

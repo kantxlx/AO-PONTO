@@ -17,8 +17,8 @@ A demonstração usa dados em memória. Qualquer pedido, usuário ou configuraç
 
 1. No cardápio, busque um corte ou escolha uma categoria. Produtos indisponíveis não podem ser selecionados.
 2. Selecione a quantidade. Para testar, `0,500` kg de picanha resulta em R$ 39,95 no catálogo fictício.
-3. Edite quantidades no resumo e marque a escolha presencial se desejar escolher a peça no balcão. No celular, abra **Ver meu pedido**.
-4. Clique em **Revisar pedido**, confira os itens e use **Confirmar e gerar senha**. Anote a senha e acompanhe pelo link/QR code exibido. O comprovante pode ser impresso ou ter seu link copiado.
+3. Clique em **Ir para o carrinho**. Na tela do carrinho, edite as quantidades, remova itens e marque a escolha presencial se desejar escolher a peça no balcão. Use **Continuar escolhendo** para adicionar outros cortes.
+4. Confira o total estimado e clique em **Enviar pedido ao açougue**. Após a confirmação do servidor, a senha aparece em tela inteira. Anote ou fotografe o número e acompanhe pelo painel ou QR code. O botão **Novo pedido** libera o totem imediatamente; após 30 segundos, isso acontece automaticamente, sem cancelar o pedido já enviado. A seleção e os filtros são limpos para o próximo cliente. Recarregar durante esses 30 segundos preserva apenas o tempo restante da confirmação.
 5. Abra **Atendimento** em outra aba. Na demonstração, entre com `gerente@demo.local` e `DemoAoPonto2026!`.
 6. Consulte o agrupamento de cortes, chame a próxima senha e confira a atualização no painel público.
 7. Busque por pedido, senha ou corte e filtre a situação da fila. Rechame quando necessário. Ao concluir, confira a janela de confirmação da entrega; o pedido sai dos agrupamentos.

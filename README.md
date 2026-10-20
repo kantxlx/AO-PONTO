@@ -6,6 +6,7 @@ Sistema web de autoatendimento e organização do atendimento em açougues. O cl
 
 - Cardápio com fotos ilustrativas, busca sem acentos, categorias, ordenação por preço e filtro de disponibilidade.
 - Seleção em kg ou unidades, atalhos de quantidade, edição dos itens e revisão antes da confirmação.
+- Fluxo de totem: cardápio → carrinho → envio ao açougue → senha em tela inteira, com botão de novo pedido e reinício automático após 30 segundos.
 - Registro transacional de pedido, itens e senha, com proteção contra reenvios duplicados.
 - Indicação de escolha da peça no balcão.
 - Painel público com chamadas, histórico e reconexão por SSE.
