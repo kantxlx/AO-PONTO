@@ -1,0 +1,853 @@
+/* Leitura, contraste e alvos de toque. */
+.utility-strip {
+  font-size: 10px;
+}
+.site-header .app-navigation a {
+  font-size: 13px;
+}
+.header-service {
+  font-size: 11px;
+}
+.brand small {
+  font-size: 8px;
+}
+.intro {
+  height: 250px;
+  padding: 22px 34px;
+}
+.intro h1 {
+  font-size: 44px;
+  line-height: 1;
+  margin: 10px 0;
+}
+.intro p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 13px;
+}
+.hero-label {
+  font-size: 9px;
+}
+.hero-button {
+  font-size: 11px;
+  min-height: 40px;
+  padding: 10px 15px;
+}
+.how-it-works {
+  font-size: 11px;
+  padding: 16px 6px;
+}
+.how-it-works small {
+  font-size: 10px;
+}
+.how-it-works b {
+  font-size: 10px;
+}
+.catalog-title > span {
+  font-size: 11px;
+  color: #8c7562;
+}
+.catalog-title .eyebrow {
+  font-size: 9px;
+}
+.tabs button {
+  font-size: 12px;
+  min-height: 40px;
+  padding: 10px 14px;
+}
+.tabs small {
+  font-size: 9px;
+}
+.search {
+  height: 40px;
+}
+.search input {
+  font-size: 12px;
+}
+.catalog-filters,
+.sort-control select {
+  font-size: 11px;
+  color: #86715f;
+}
+.availability-filter {
+  min-height: 28px;
+  gap: 7px;
+}
+.availability-filter input {
+  width: 14px;
+  height: 14px;
+}
+.section-heading h2 {
+  font-size: 12px;
+}
+.section-heading > span {
+  font-size: 11px;
+  color: #9a846f;
+}
+.cut-info {
+  padding: 16px;
+}
+.cut-info h3 {
+  font-size: 23px;
+}
+.cut-info > p {
+  font-size: 12px;
+  line-height: 1.6;
+  min-height: 39px;
+  color: #897463;
+  margin-bottom: 17px;
+}
+.price {
+  font-size: 22px;
+}
+.price small {
+  font-size: 11px;
+  color: #95816e;
+}
+.select-cut {
+  min-height: 41px;
+  font-size: 11px;
+  padding: 9px 11px;
+  gap: 4px;
+}
+.category-label {
+  font-size: 10px;
+  padding: 5px 8px;
+}
+.sold-out {
+  font-size: 11px;
+}
+.cart-heading h2 {
+  font-size: 24px;
+}
+.cart-heading small {
+  font-size: 11px;
+}
+.empty-cart h3 {
+  font-size: 24px;
+}
+.empty-cart p {
+  font-size: 12px;
+  color: #9a826d;
+}
+.empty-cart-tip {
+  font-size: 10px;
+}
+.cart-footer {
+  font-size: 10px;
+  color: #94795f;
+}
+.cart-message {
+  font-size: 12px;
+}
+.cart-product strong {
+  font-size: 13px;
+}
+.cart-product small {
+  font-size: 11px;
+}
+.cart-item-bottom {
+  font-size: 13px;
+}
+.quantity-stepper button {
+  min-width: 30px;
+  height: 33px;
+}
+.quantity-stepper .edit-quantity {
+  font-size: 11px;
+  min-width: 79px;
+}
+.cart-summary > div:first-child > span {
+  font-size: 12px;
+  color: #91745c;
+}
+.cart-summary > p {
+  font-size: 10px;
+  color: #9e8268;
+}
+.presential {
+  font-size: 11px;
+  color: #947150;
+}
+.clear-cart {
+  font-size: 11px;
+}
+.cart-summary > .primary {
+  font-size: 12px;
+  min-height: 46px;
+}
+.image-disclaimer {
+  font-size: 10px;
+  color: #a18a73;
+}
+.field-help {
+  font-size: 11px;
+  color: #9e8268;
+}
+.selection-fields label {
+  font-size: 12px;
+}
+.selection-fields input,
+.selection-fields select {
+  font-size: 14px;
+}
+.quantity-presets button {
+  font-size: 12px;
+  min-height: 40px;
+}
+.dialog-description {
+  font-size: 12px;
+  color: #997b62;
+}
+.service-ticket-header {
+  font-size: 12px;
+}
+.service-ticket-footer {
+  font-size: 12px;
+}
+.service-ticket-content p {
+  font-size: 10px;
+}
+.ticket-tracking > a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+.ticket-tools {
+  display: flex;
+  gap: 8px;
+}
+.ticket-tools button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid #e6d5c0;
+  background: #faf3e8;
+  color: #9b7957;
+  border-radius: 5px;
+  font-size: 10px;
+}
+.ticket-tracking details {
+  font-size: 10px;
+  color: #ac8f6f;
+}
+.ticket-tracking details summary {
+  cursor: pointer;
+}
+.ticket-tracking details small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 8px;
+}
+.new-order {
+  font-size: 12px;
+}
+.selection-notice {
+  font-size: 12px;
+}
+.site-footer {
+  font-size: 11px;
+}
+.ops-card p,
+.page-heading > div > p:last-child {
+  color: #96785f;
+  font-size: 13px;
+}
+.metric-card > span:nth-child(2) {
+  font-size: 12px;
+  color: #8a6a4d;
+}
+.metric-card > small {
+  font-size: 11px;
+  color: #a88b6c;
+}
+.queue-action-bar > div {
+  font-size: 12px;
+  color: #876345;
+}
+.queue-action-bar small {
+  font-size: 10px;
+  color: #a1805d;
+}
+.queue-action-bar .primary {
+  font-size: 12px;
+  min-height: 44px;
+}
+.order-filters button {
+  font-size: 11px;
+  min-height: 40px;
+}
+.order-filters small {
+  font-size: 10px;
+}
+.order-meta {
+  font-size: 11px;
+  color: #a17f5b;
+}
+.order-items li {
+  font-size: 13px;
+}
+.order-items li > span {
+  font-size: 12px;
+}
+.status-pill {
+  font-size: 10px;
+}
+.order-number > span {
+  font-size: 10px;
+}
+.order-estimate {
+  font-size: 11px;
+}
+.order-estimate strong {
+  font-size: 18px;
+}
+.ops-actions > * {
+  font-size: 12px;
+  min-height: 44px;
+}
+.pending-order-hint {
+  font-size: 11px;
+  color: #a18158;
+}
+.in-person-note {
+  font-size: 11px;
+}
+.preparation-heading p,
+.preparation-groups li > span {
+  font-size: 11px;
+  color: #a27f58;
+}
+.preparation-groups li > div {
+  font-size: 13px;
+}
+.preparation-foot {
+  font-size: 10px;
+  color: #a17b52;
+}
+.admin-table th {
+  font-size: 10px;
+  color: #a18059;
+}
+.admin-table td {
+  font-size: 13px;
+  color: #8c6947;
+}
+.table-product strong {
+  font-size: 13px;
+}
+.table-product small,
+.admin-table td > small {
+  font-size: 11px;
+  color: #a0805e;
+}
+.availability-pill,
+.role-pill {
+  font-size: 11px;
+}
+.table-toolbar .search input {
+  font-size: 12px;
+}
+.segmented button {
+  font-size: 12px;
+  min-height: 36px;
+}
+.segmented small {
+  font-size: 10px;
+}
+.table-foot {
+  font-size: 11px;
+}
+.table-foot > span {
+  font-size: 10px;
+}
+.section-tabs button {
+  font-size: 13px;
+}
+.card-heading .primary {
+  font-size: 12px;
+  min-height: 44px;
+}
+.editor-form label,
+.call-settings > label {
+  font-size: 12px;
+  color: #936b45;
+}
+.editor-form input:not([type="checkbox"]),
+.editor-form textarea,
+.editor-form select,
+.call-settings > label > input {
+  font-size: 14px;
+}
+.editor-form label > small,
+.check-option small {
+  font-size: 11px;
+  color: #a2815f;
+}
+.check-option strong {
+  font-size: 12px;
+}
+.editor-photo p {
+  font-size: 11px;
+}
+.unit-checks label {
+  font-size: 12px;
+}
+.editor-form legend {
+  font-size: 11px;
+}
+.settings-layout .card-heading p {
+  font-size: 12px;
+}
+.hours-row > span:first-child {
+  font-size: 12px;
+}
+.closed-toggle {
+  font-size: 11px;
+}
+.hours-row input[type="time"] {
+  font-size: 12px;
+  min-height: 40px;
+}
+.settings-note p {
+  font-size: 11px;
+  color: #a58a5e;
+}
+.settings-layout .field-help {
+  font-size: 11px;
+}
+.login-form > label {
+  font-size: 12px;
+}
+.login-form input,
+.password-field input {
+  font-size: 14px;
+}
+.login-form > p:not(.eyebrow) {
+  font-size: 12px;
+  color: #a18361;
+}
+.login-form > .login-help {
+  font-size: 11px !important;
+}
+.demo-access {
+  font-size: 11px;
+}
+.demo-access p,
+.demo-access button {
+  font-size: 11px;
+}
+.display-top p:last-child {
+  font-size: 12px;
+  color: #bb9970;
+}
+.display-label {
+  font-size: 11px;
+}
+.display-current > p {
+  font-size: 13px;
+}
+.display-current-foot {
+  font-size: 11px;
+}
+.ticket-history small {
+  font-size: 9px;
+}
+.ticket-history > div > span:last-child {
+  font-size: 12px;
+}
+.ticket-history > div > span:last-child > small {
+  font-size: 11px;
+}
+.display-waiting h3 {
+  font-size: 12px;
+}
+.display-waiting p {
+  font-size: 12px;
+}
+.display-bottom {
+  font-size: 11px;
+}
+.display-bottom button {
+  font-size: 11px;
+  min-height: 40px;
+}
+.tracking-intro > p:last-child {
+  font-size: 12px;
+}
+.tracking-status {
+  font-size: 12px;
+}
+.tracking-card > p:not(.tracking-number-label) {
+  font-size: 12px;
+}
+.tracking-progress small {
+  font-size: 11px;
+}
+.tracking-ahead strong {
+  font-size: 12px;
+}
+.tracking-ahead small {
+  font-size: 10px;
+}
+.tracking-card > .primary {
+  font-size: 12px;
+  min-height: 44px;
+}
+@media (max-width: 1150px) {
+  .site-header .app-navigation a {
+    font-size: 12px;
+  }
+  .grid {
+    gap: 16px;
+  }
+  .price {
+    font-size: 22px;
+  }
+  .select-cut {
+    font-size: 12px;
+  }
+  .intro {
+    height: 250px;
+  }
+  .site-footer {
+    font-size: 10px;
+  }
+  .hours-row {
+    grid-template-columns: 86px 75px minmax(75px, 1fr) 13px minmax(75px, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .intro {
+    height: 255px;
+  }
+  .site-header .app-navigation a {
+    font-size: 12px;
+  }
+  .tabs button {
+    font-size: 11px;
+    padding: 10px 11px;
+  }
+  .search input {
+    font-size: 12px;
+  }
+  .cut-info {
+    padding: 13px;
+  }
+  .cut-info h3 {
+    font-size: 22px;
+  }
+  .cut-info > p {
+    font-size: 11px;
+    min-height: 35px;
+  }
+  .cut-bottom {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .select-cut {
+    font-size: 11px;
+    min-height: 40px;
+    width: 100%;
+  }
+  .price {
+    font-size: 22px;
+  }
+  .how-it-works {
+    font-size: 10px;
+  }
+  .metric-card > span:nth-child(2) {
+    font-size: 11px;
+  }
+  .metric-card > small {
+    font-size: 10px;
+  }
+  .hours-row {
+    grid-template-columns: 120px 90px 1fr 20px 1fr;
+  }
+  .display-bottom {
+    font-size: 10px;
+  }
+  .display-bottom button {
+    font-size: 10px;
+  }
+  .admin-table td {
+    font-size: 12px;
+  }
+  .queue-action-bar .primary {
+    font-size: 12px;
+  }
+  .ops-actions > * {
+    font-size: 12px;
+  }
+}
+@media (max-width: 600px) {
+  .site-header .app-navigation a {
+    font-size: 11px;
+  }
+  .intro {
+    height: 258px;
+    padding: 24px;
+  }
+  .intro h1 {
+    font-size: 43px;
+  }
+  .intro p {
+    font-size: 12px;
+  }
+  .hero-label {
+    font-size: 8px;
+  }
+  .hero-button {
+    font-size: 11px;
+    min-height: 41px;
+  }
+  .how-it-works {
+    font-size: 9px;
+    padding: 14px 0;
+  }
+  .how-it-works b {
+    font-size: 9px;
+  }
+  .catalog-title > span {
+    font-size: 9px;
+  }
+  .tabs button {
+    min-height: 42px;
+    font-size: 11px;
+    padding: 10px 6px;
+  }
+  .search input {
+    font-size: 16px;
+  }
+  .search {
+    height: 44px;
+  }
+  .catalog-filters,
+  .sort-control select {
+    font-size: 11px;
+  }
+  .availability-filter input {
+    width: 14px;
+    height: 14px;
+  }
+  .section-heading h2,
+  .section-heading > span {
+    font-size: 11px;
+  }
+  .cut-info {
+    padding: 13px 11px;
+  }
+  .cut-info h3 {
+    font-size: 21px;
+  }
+  .cut-info > p {
+    font-size: 11px;
+    min-height: 36px;
+    color: #88705c;
+  }
+  .price {
+    font-size: 21px;
+  }
+  .price small {
+    font-size: 11px;
+  }
+  .select-cut {
+    min-height: 44px;
+    font-size: 12px;
+  }
+  .category-label {
+    font-size: 9px;
+  }
+  .sold-out {
+    font-size: 10px;
+  }
+  .cart-summary > .primary {
+    font-size: 13px;
+  }
+  .cart-product strong {
+    font-size: 14px;
+  }
+  .cart-product small {
+    font-size: 12px;
+  }
+  .quantity-stepper button {
+    min-width: 35px;
+    height: 38px;
+  }
+  .quantity-stepper .edit-quantity {
+    font-size: 12px;
+  }
+  .presential {
+    font-size: 12px;
+  }
+  .catalog-title .eyebrow {
+    font-size: 8px;
+  }
+  .selection-fields input,
+  .selection-fields select {
+    font-size: 16px;
+  }
+  .dialog-description {
+    font-size: 12px;
+  }
+  .field-help {
+    font-size: 11px;
+  }
+  .quantity-presets button {
+    font-size: 13px;
+    min-height: 42px;
+  }
+  .site-footer {
+    font-size: 9px;
+  }
+  .section-tabs button {
+    font-size: 11px;
+  }
+  .metric-card > span:nth-child(2) {
+    font-size: 11px;
+  }
+  .metric-card > small {
+    font-size: 10px;
+  }
+  .order-filters button {
+    font-size: 11px;
+    padding: 9px 6px;
+  }
+  .order-filters small {
+    font-size: 9px;
+  }
+  .order-controls .search input {
+    font-size: 16px;
+  }
+  .page-heading > div > p:last-child {
+    font-size: 12px;
+  }
+  .editor-form input:not([type="checkbox"]),
+  .editor-form textarea,
+  .editor-form select,
+  .login-form input {
+    font-size: 16px !important;
+  }
+  .login-form > .login-help {
+    font-size: 11px !important;
+  }
+  .table-foot {
+    font-size: 10px;
+  }
+  .hours-row {
+    grid-template-columns: 1fr 1fr 17px 1fr;
+    gap: 7px;
+  }
+  .hours-row > span:first-child {
+    font-size: 12px;
+  }
+  .hours-row input[type="time"] {
+    font-size: 14px;
+    min-height: 42px;
+  }
+  .settings-layout .card-heading p {
+    font-size: 12px;
+  }
+  .display-top p:last-child {
+    font-size: 11px;
+  }
+  .display-label {
+    font-size: 9px;
+  }
+  .display-current > p {
+    font-size: 12px;
+  }
+  .display-current-foot {
+    font-size: 10px;
+  }
+  .display-bottom button {
+    font-size: 11px;
+    min-height: 44px;
+  }
+  .display-connection {
+    font-size: 11px;
+  }
+  .tracking-intro > p:last-child {
+    font-size: 12px;
+  }
+  .tracking-status {
+    font-size: 11px;
+  }
+  .tracking-progress small {
+    font-size: 10px;
+  }
+  .tracking-ahead strong {
+    font-size: 12px;
+  }
+  .tracking-ahead small {
+    font-size: 10px;
+  }
+}
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .service-ticket,
+  .service-ticket * {
+    visibility: visible !important;
+  }
+  .service-ticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 320px;
+    padding: 20px;
+    background: white !important;
+    color: #222 !important;
+  }
+  .ticket-tools,
+  .new-order,
+  .ticket-tracking details {
+    display: none !important;
+  }
+  .service-ticket .ticket-tracking {
+    display: flex !important;
+  }
+  .service-ticket-content {
+    border-color: #aaa !important;
+    background: white !important;
+  }
+  .service-ticket-content strong {
+    color: #222 !important;
+  }
+}
+@media print {
+  .cart {
+    display: block !important;
+    position: static !important;
+    width: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  .service-ticket {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  .service-ticket .ticket-tools,
+  .service-ticket .new-order {
+    display: none !important;
+  }
+}
+.order-card {
+  display: flex;
+  flex-direction: column;
+}
+.order-card .order-items {
+  flex: 1;
+}
+.order-card .ops-actions {
+  margin-top: auto;
+}

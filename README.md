@@ -4,12 +4,12 @@ Sistema web de autoatendimento e organização do atendimento em açougues. O cl
 
 ## Funcionalidades
 
-- Cardápio com busca sem acentos, categorias, preço e disponibilidade.
-- Seleção em kg ou unidades, quantidades validadas e total estimado.
+- Cardápio com fotos ilustrativas, busca sem acentos, categorias, ordenação por preço e filtro de disponibilidade.
+- Seleção em kg ou unidades, atalhos de quantidade, edição dos itens e revisão antes da confirmação.
 - Registro transacional de pedido, itens e senha, com proteção contra reenvios duplicados.
 - Indicação de escolha da peça no balcão.
 - Painel público com chamadas, histórico e reconexão por SSE.
-- Atendimento com fila FIFO, agrupamento por corte/unidade, reemissão e conclusão.
+- Atendimento com indicadores, busca e filtros, fila FIFO, agrupamento por corte/unidade, reemissão e confirmação da entrega.
 - Chamadas automáticas configuráveis e recuperação de senhas expiradas.
 - Login da equipe, perfis de gerente e funcionário e administração de usuários.
 - Cadastro, edição e desativação de cortes, preservando os pedidos anteriores.
@@ -85,6 +85,7 @@ O CI aplica as migrações duas vezes, carrega o catálogo, testa API e PostgreS
 - [Arquitetura e regras](docs/arquitetura.md)
 - [Banco de dados](docs/banco-de-dados.md)
 - [Execução e uso](docs/execucao.md)
+- [Interface, identidade visual e imagens](docs/identidade-visual.md)
 - [Implantação, backup e recuperação](docs/operacao.md)
 - [Planejamento no Trello](https://trello.com/b/KojhXpU7/ao-ponto)
 

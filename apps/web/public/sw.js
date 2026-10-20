@@ -1,4 +1,4 @@
-const CACHE = "ao-ponto-v2";
+const CACHE = "ao-ponto-v3";
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE).then((cache) => cache.addAll(["/", "/index.html"])),
@@ -27,7 +27,9 @@ self.addEventListener("message", (event) => {
         .then((cache) =>
           cache.addAll([
             ...event.data.paths.filter(
-              (p) => typeof p === "string" && p.startsWith("/assets/"),
+              (p) =>
+                typeof p === "string" &&
+                (p.startsWith("/assets/") || p.startsWith("/images/")),
             ),
             "/api/cuts",
             "/api/status",
@@ -43,7 +45,8 @@ self.addEventListener("fetch", (event) => {
   if (
     !publicApi &&
     event.request.mode !== "navigate" &&
-    !url.pathname.startsWith("/assets/")
+    !url.pathname.startsWith("/assets/") &&
+    !url.pathname.startsWith("/images/")
   )
     return;
   event.respondWith(

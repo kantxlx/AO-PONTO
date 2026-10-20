@@ -7,7 +7,11 @@ O sistema utiliza React/Vite, API Express e PostgreSQL, organizados em npm works
 | Camada                   | Responsabilidade                                                             |
 | ------------------------ | ---------------------------------------------------------------------------- |
 | `apps/web/src/App.jsx`   | Catálogo, seleção, escolha presencial, confirmação e recuperação de reenvios |
-| `apps/web/src/Shell.jsx` | Navegação, login, atendimento, administração e acompanhamento                |
+| `apps/web/src/Shell.jsx` | Navegação, sessão, cabeçalho e rodapé compartilhados                         |
+| `apps/web/src/pages` | Telas de login, atendimento, administração, painel e acompanhamento |
+| `apps/web/src/components` | Diálogo acessível, fotos dos cortes e relógio compartilhados |
+| `apps/web/src/format.js` | Formatação e leitura de preços com vírgula ou ponto |
+| `apps/web/public/images` | Imagens WebP locais do catálogo e da abertura |
 | `routes` e `controllers` | Contratos HTTP, sessões, permissões de acesso e SSE                          |
 | `services`               | Casos de uso, autorização, quantidades, horários e transições                |
 | `models`                 | Representação de pedido, catálogo e validações de domínio                    |

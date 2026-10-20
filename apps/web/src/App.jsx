@@ -2,26 +2,104 @@ import { useEffect, useState } from "react";
 import {
   Beef,
   Search,
-  ArrowUpRight,
   RefreshCw,
   ShoppingBag,
-  Drumstick,
   X,
   Trash2,
   Plus,
   Minus,
+  ArrowRight,
+  Check,
+  ShieldCheck,
+  Clock3,
+  ReceiptText,
+  Pencil,
+  SlidersHorizontal,
 } from "lucide-react";
-import { addItem, restoreCart, reconcileCart, subtotalCents } from "./cart.js";
+import {
+  addItem,
+  restoreCart,
+  reconcileCart,
+  subtotalCents,
+  parseQuantity,
+} from "./cart.js";
 import { useRef } from "react";
 import Ticket from "./Ticket.jsx";
+import CutPhoto from "./components/CutPhoto.jsx";
+import Modal from "./components/Modal.jsx";
+function readReceipt() {
+  try {
+    const data = JSON.parse(sessionStorage.getItem("ao-ponto.receipt"));
+    return data?.id && Number.isInteger(data?.ticket?.number) ? data : null;
+  } catch {
+    return null;
+  }
+}
 const money = (value) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
     value / 100,
   );
 export default function App() {
   const [registeringOrder, setRegisteringOrder] = useState(false);
-  const [serviceTicket, setServiceTicket] = useState(null);
-  const [receipt, setReceipt] = useState(null);
+  const [serviceTicket, setServiceTicket] = useState(
+    () => readReceipt()?.ticket.number ?? null,
+  );
+  const [receipt, setReceipt] = useState(readReceipt);
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [sort, setSort] = useState("recommended");
+  const [review, setReview] = useState(false);
+  const [mobileCart, setMobileCart] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const cartPanel = useRef(null),
+    cartTrigger = useRef(null);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 901px)");
+    const closeWhenWide = () => {
+      if (media.matches) setMobileCart(false);
+    };
+    media.addEventListener("change", closeWhenWide);
+    return () => media.removeEventListener("change", closeWhenWide);
+  }, []);
+  useEffect(() => {
+    try {
+      if (receipt)
+        sessionStorage.setItem("ao-ponto.receipt", JSON.stringify(receipt));
+      else sessionStorage.removeItem("ao-ponto.receipt");
+    } catch {}
+  }, [receipt]);
+  useEffect(() => {
+    if (!mobileCart) return;
+    const previous = document.activeElement;
+    const key = (e) => {
+      if (document.querySelector("dialog[open]")) return;
+      if (e.key === "Escape") setMobileCart(false);
+      if (e.key === "Tab") {
+        const controls = [
+          ...cartPanel.current.querySelectorAll(
+            "button:not(:disabled),a[href],input:not(:disabled)",
+          ),
+        ];
+        const first = controls[0],
+          last = controls.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    cartPanel.current.querySelector("button")?.focus();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", key);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener("keydown", key);
+      previous?.focus();
+    };
+  }, [mobileCart]);
   const [inPerson, setInPerson] = useState(false);
   const [pendingOrder, setPendingOrder] = useState(() => {
     try {
@@ -119,6 +197,7 @@ export default function App() {
 
       setServiceTicket(data.order.ticket.number);
       setReceipt(data.order);
+      if (window.matchMedia("(max-width: 900px)").matches) setMobileCart(true);
       localStorage.setItem("ao-ponto.selection.v1", "[]");
       localStorage.removeItem("ao-ponto.pending-order");
       setPendingOrder(null);
@@ -157,6 +236,26 @@ export default function App() {
   const [unit, setUnit] = useState("kg");
   const [selectionError, setSelectionError] = useState("");
   const [notice, setNotice] = useState("");
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(""), 6000);
+    return () => clearTimeout(timer);
+  }, [notice]);
+  useEffect(() => {
+    if (!receipt) return;
+    let active = true;
+    fetch(`/api/orders/${encodeURIComponent(receipt.id)}/status`)
+      .then((r) => {
+        if (active && r.status === 404) {
+          setReceipt(null);
+          setServiceTicket(null);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [receipt?.id]);
   const [storageWarning, setStorageWarning] = useState(false);
   const dialogRef = useRef(null);
   const triggerRef = useRef(null);
@@ -179,6 +278,7 @@ export default function App() {
     triggerRef.current?.focus();
   }
   function openSelection(cut, event) {
+    setEditingItem(null);
     setServiceTicket(null);
     setReceipt(null);
     triggerRef.current = event.currentTarget;
@@ -190,8 +290,20 @@ export default function App() {
   function submitSelection(event) {
     event.preventDefault();
     try {
-      setCart(addItem(cart, selected, quantity, unit));
-      setNotice(`${selected.name} adicionado à seleção.`);
+      const base = editingItem
+        ? cart.filter(
+            (row) =>
+              !(
+                row.cutId === editingItem.cutId && row.unit === editingItem.unit
+              ),
+          )
+        : cart;
+      setCart(addItem(base, selected, quantity, unit));
+      setNotice(
+        editingItem
+          ? "Quantidade atualizada."
+          : `${selected.name} adicionado ao pedido.`,
+      );
       closeSelection();
     } catch (err) {
       setSelectionError(err.message);
@@ -247,8 +359,23 @@ export default function App() {
   const visibleCuts = cuts.filter(
     (cut) =>
       (category === "Todos" || cut.category === category) &&
-      normalized(cut.name).includes(normalized(search)),
+      (!onlyAvailable || cut.available) &&
+      normalized(cut.name + " " + cut.description).includes(normalized(search)),
   );
+  if (sort === "price-up")
+    visibleCuts.sort((a, b) => a.priceCents - b.priceCents);
+  if (sort === "price-down")
+    visibleCuts.sort((a, b) => b.priceCents - a.priceCents);
+  if (sort === "name")
+    visibleCuts.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  let selectionSubtotal = null;
+  try {
+    if (selected)
+      selectionSubtotal = subtotalCents(
+        selected.priceCents,
+        parseQuantity(quantity, unit),
+      );
+  } catch {}
   const cartRows = cart
     .map((item) => ({
       ...item,
@@ -262,48 +389,55 @@ export default function App() {
   );
   return (
     <div className="app">
-      <header>
-        <a className="brand" href="/" aria-label="Ao Ponto início">
-          <span className="brand-icon">
-            <Beef size={26} />
-          </span>
-          <span>
-            ao<span className="brand-light">ponto</span>
-            <small>AÇOUGUE · AUTOATENDIMENTO</small>
-          </span>
-        </a>
-        <span className="header-note">
-          <span className="dot" /> Feito para o seu dia a dia
-        </span>
-      </header>
-      <main>
-        <section className="intro">
-          <div>
-            <p className="eyebrow">DO NOSSO BALCÃO PARA SUA MESA</p>
+      <main id="conteudo" tabIndex={-1} className="catalog-main">
+        <section className="intro" aria-label="Bem-vindo ao Ao Ponto">
+          <div className="intro-copy">
+            <span className="hero-label">
+              <span />
+              TRADIÇÃO EM CADA ESCOLHA
+            </span>
             <h1>
-              Seu próximo prato
+              Carne boa.
               <br />
-              começa <em>aqui.</em>
+              <em>Do seu jeito.</em>
             </h1>
-            <p className="subtitle">
-              Escolha seus cortes favoritos.
-              <br />A gente cuida do resto.
+            <p>
+              Escolha seus cortes, receba sua senha
+              <br />e deixe o resto com o nosso balcão.
             </p>
+            <button
+              className="hero-button"
+              onClick={() =>
+                document
+                  .getElementById("catalogo")
+                  .scrollIntoView({ behavior: "smooth", block: "start" })
+              }
+            >
+              Escolher meus cortes <ArrowRight size={17} />
+            </button>
           </div>
-          <div className="intro-badge">
-            <Beef size={50} strokeWidth={1.2} />
+          <div className="hero-stamp">
+            <Beef size={25} strokeWidth={1.3} />
             <span>
-              Cortes selecionados.
-              <br />
-              <strong>Sabor de verdade.</strong>
+              AO PONTO<small>DO BALCÃO À SUA MESA</small>
             </span>
           </div>
         </section>
-        {demo && (
-          <p className="demo-note">
-            Demonstração em memória · dados apagados ao encerrar o servidor
-          </p>
-        )}
+        <div className="how-it-works" aria-label="Como pedir">
+          <span>
+            <b>01</b> Escolha os cortes
+          </span>
+          <span>
+            <b>02</b> Confirme seu pedido
+          </span>
+          <span>
+            <b>03</b> Aguarde sua senha
+          </span>
+          <small>
+            <ShieldCheck size={16} />
+            Prático, no seu tempo.
+          </small>
+        </div>
         {offline && (
           <p role="alert" className="demo-note">
             Sem conexão · catálogo em cache. A confirmação ficará pendente até a
@@ -329,7 +463,17 @@ export default function App() {
           </div>
         )}
         <div className="catalog-layout">
-          <section className="catalog" aria-label="Cardápio">
+          <section id="catalogo" className="catalog" aria-label="Cardápio">
+            <div className="catalog-title">
+              <div>
+                <p className="eyebrow">ESCOLHA COM GOSTO</p>
+                <h2>Nosso cardápio</h2>
+              </div>
+              <span>
+                {demo ? "Demonstração · " : ""}
+                {cuts.length} cortes para escolher
+              </span>
+            </div>
             <div className="catalog-tools">
               <div className="tabs" role="group" aria-label="Categorias">
                 {categories.map((item) => (
@@ -339,7 +483,12 @@ export default function App() {
                     aria-pressed={category === item}
                     onClick={() => setCategory(item)}
                   >
-                    {item}
+                    {item}{" "}
+                    <small>
+                      {item === "Todos"
+                        ? cuts.length
+                        : cuts.filter((c) => c.category === item).length}
+                    </small>
                   </button>
                 ))}
               </div>
@@ -347,16 +496,37 @@ export default function App() {
                 <Search size={18} />
                 <input
                   aria-label="Buscar corte"
-                  placeholder="Buscar um corte"
+                  placeholder="Qual corte você procura?"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                 />
               </label>
             </div>
+            <div className="catalog-filters">
+              <label className="availability-filter">
+                <input
+                  type="checkbox"
+                  checked={onlyAvailable}
+                  onChange={(e) => setOnlyAvailable(e.target.checked)}
+                />
+                Somente disponíveis
+              </label>
+              <label className="sort-control">
+                <SlidersHorizontal size={14} />
+                <select
+                  aria-label="Ordenar cortes"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                >
+                  <option value="recommended">Ordem do cardápio</option>
+                  <option value="price-up">Menor preço</option>
+                  <option value="price-down">Maior preço</option>
+                  <option value="name">Nome do corte</option>
+                </select>
+              </label>
+            </div>
             <div className="section-heading">
-              <h2>
-                {category === "Todos" ? "Conheça nossos cortes" : category}
-              </h2>
+              <h2>{category === "Todos" ? "Todos os cortes" : category}</h2>
               <span>
                 {loading
                   ? "Carregando…"
@@ -377,6 +547,16 @@ export default function App() {
             ) : visibleCuts.length === 0 ? (
               <p className="state">
                 Nenhum corte encontrado. Tente outra busca ou categoria.
+                <button
+                  className="text-button"
+                  onClick={() => {
+                    setSearch("");
+                    setCategory("Todos");
+                    setOnlyAvailable(false);
+                  }}
+                >
+                  Limpar filtros
+                </button>
               </p>
             ) : (
               <div className="grid">
@@ -388,11 +568,7 @@ export default function App() {
                     <div
                       className={`cut-art ${cut.category === "Aves" ? "poultry" : cut.category === "Suínos" ? "pork" : ""}`}
                     >
-                      {cut.category === "Aves" ? (
-                        <Drumstick size={78} strokeWidth={1} />
-                      ) : (
-                        <Beef size={88} strokeWidth={1} />
-                      )}
+                      <CutPhoto cut={cut} />
                       <span className="category-label">{cut.category}</span>
                       {!cut.available && (
                         <span className="sold-out">Indisponível</span>
@@ -414,7 +590,7 @@ export default function App() {
                           aria-label={`Selecionar ${cut.name}`}
                           onClick={(event) => openSelection(cut, event)}
                         >
-                          <ArrowUpRight size={20} />
+                          <Plus size={15} /> <span>Adicionar</span>
                         </button>
                       </div>
                     </div>
@@ -423,12 +599,34 @@ export default function App() {
               </div>
             )}
           </section>
-          <aside className="cart" aria-label="Sua seleção">
+          {mobileCart && (
+            <button
+              className="cart-shade"
+              aria-label="Fechar pedido"
+              onClick={() => setMobileCart(false)}
+            />
+          )}
+          <aside
+            ref={cartPanel}
+            className={`cart ${mobileCart ? "is-open" : ""}`}
+            aria-label="Seu pedido"
+            role={mobileCart ? "dialog" : undefined}
+            aria-modal={mobileCart ? true : undefined}
+          >
             <div className="cart-heading">
               <h2>
-                Sua seleção <small>({cart.length})</small>
+                <ReceiptText size={21} />{" "}
+                {serviceTicket ? "Pedido confirmado" : "Seu pedido"}{" "}
+                {!serviceTicket && <small>{cart.length}</small>}
               </h2>
-              <ShoppingBag size={21} />
+              <button
+                type="button"
+                className="mobile-cart-close icon-button"
+                aria-label="Fechar seu pedido"
+                onClick={() => setMobileCart(false)}
+              >
+                <X size={19} />
+              </button>
             </div>
             {loading || error ? (
               <p className="cart-message">
@@ -445,27 +643,47 @@ export default function App() {
 
                     <div className="service-ticket-content">
                       <p>Sua senha de atendimento</p>
-                      <strong>{serviceTicket}</strong>
+                      <strong>{String(serviceTicket).padStart(3, "0")}</strong>
                     </div>
 
                     {receipt && <Ticket order={receipt} />}
                     <div className="service-ticket-footer">
-                      Aguarde sua senha ser chamada.
+                      Aguarde sua senha ser chamada no painel.
                     </div>
+                    <button
+                      className="primary new-order"
+                      onClick={() => {
+                        setServiceTicket(null);
+                        setReceipt(null);
+                        setMobileCart(false);
+                      }}
+                    >
+                      Iniciar novo pedido <ArrowRight size={16} />
+                    </button>
                   </div>
                 )}
 
-                <div className="empty-cart">
-                  <span>
-                    <ShoppingBag size={36} strokeWidth={1.2} />
-                  </span>
-                  <h3>O que vai ser hoje?</h3>
-                  <p>
-                    Adicione seus cortes favoritos.
-                    <br />
-                    Seu pedido começa aqui.
-                  </p>
-                </div>
+                {serviceTicket === null && (
+                  <div className="empty-cart">
+                    <span>
+                      <ShoppingBag size={36} strokeWidth={1.2} />
+                    </span>
+                    <h3>
+                      Seu próximo prato
+                      <br />
+                      começa aqui.
+                    </h3>
+                    <p>
+                      Adicione seus cortes favoritos.
+                      <br />
+                      Seu pedido começa aqui.
+                    </p>
+                    <div className="empty-cart-tip">
+                      <Plus size={14} />
+                      Toque em Adicionar para começar
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -476,7 +694,15 @@ export default function App() {
                       key={`${item.cutId}:${item.unit}`}
                     >
                       <div className="cart-item-title">
-                        <strong>{item.cut.name}</strong>
+                        <div className="cart-product">
+                          <CutPhoto cut={item.cut} />
+                          <strong>
+                            {item.cut.name}
+                            <small>
+                              {money(item.cut.priceCents)}/{item.unit}
+                            </small>
+                          </strong>
+                        </div>
                         <button
                           className="icon-button"
                           aria-label={`Remover ${item.cut.name}`}
@@ -493,20 +719,35 @@ export default function App() {
                           <button
                             aria-label={`Diminuir ${item.cut.name}`}
                             disabled={
+                              !!pendingOrder ||
+                              registeringOrder ||
                               item.quantity <= (item.unit === "kg" ? 0.25 : 1)
                             }
                             onClick={() => changeQuantity(item.original, -1)}
                           >
                             <Minus size={13} />
                           </button>
-                          <span>
+                          <button
+                            className="edit-quantity"
+                            aria-label={`Editar quantidade de ${item.cut.name}`}
+                            disabled={!!pendingOrder || registeringOrder}
+                            onClick={(event) => {
+                              openSelection(item.cut, event);
+                              setEditingItem(item.original);
+                              setQuantity(String(item.quantity));
+                              setUnit(item.unit);
+                            }}
+                          >
                             {item.quantity.toLocaleString("pt-BR")} {item.unit}
-                          </span>
+                            <Pencil size={10} />
+                          </button>
                           <button
                             aria-label={`Aumentar ${item.cut.name}`}
                             disabled={
+                              !!pendingOrder ||
+                              registeringOrder ||
                               item.quantity + (item.unit === "kg" ? 0.25 : 1) >
-                              100
+                                100
                             }
                             onClick={() => changeQuantity(item.original, 1)}
                           >
@@ -549,27 +790,39 @@ export default function App() {
                   </button>
                   <button
                     className="primary"
-                    onClick={submitOrder}
+                    onClick={() =>
+                      pendingOrder ? submitOrder() : setReview(true)
+                    }
                     disabled={
                       registeringOrder ||
                       (!pendingOrder && !businessStatus?.open)
                     }
                   >
-                    {registeringOrder
-                      ? "Registrando pedido…"
-                      : pendingOrder
-                        ? "Tentar confirmar novamente"
-                        : "Confirmar pedido"}
+                    {registeringOrder ? (
+                      "Registrando pedido…"
+                    ) : pendingOrder ? (
+                      "Tentar confirmar novamente"
+                    ) : (
+                      <>
+                        Revisar pedido <ArrowRight size={17} />
+                      </>
+                    )}
                   </button>
                 </div>
               </>
             )}
             <div className="cart-footer">
-              <span>Escolha com calma. Prepare com carinho.</span>
+              <span>
+                <Clock3 size={14} />
+                Seu pedido será preparado após a chamada.
+              </span>
             </div>
           </aside>
         </div>
-        <p role="status" className="selection-notice">
+        <p
+          role="status"
+          className={`selection-notice ${notice ? "has-notice" : ""}`}
+        >
           {notice}
         </p>
         {storageWarning && (
@@ -584,6 +837,7 @@ export default function App() {
             setSelected(null);
             triggerRef.current?.focus();
           }}
+          className="selection-dialog app-modal"
           aria-labelledby="selection-title"
         >
           <form onSubmit={submitSelection}>
@@ -598,11 +852,33 @@ export default function App() {
                 <X size={22} />
               </button>
             </div>
+            {selected && (
+              <div className="selection-photo">
+                <CutPhoto cut={selected} />
+                <span className="category-label">{selected.category}</span>
+              </div>
+            )}
             <h2 id="selection-title">{selected?.name}</h2>
             <p className="dialog-description">{selected?.description}</p>
             <p className="dialog-price">
               {selected && money(selected.priceCents)} / {unit}
             </p>
+            <div className="quantity-presets" aria-label="Quantidades rápidas">
+              {(unit === "kg" ? [0.25, 0.5, 1, 2] : [1, 2, 5]).map((value) => (
+                <button
+                  type="button"
+                  key={value}
+                  className={
+                    Number(quantity.replace(",", ".")) === value ? "active" : ""
+                  }
+                  onClick={() => setQuantity(String(value))}
+                >
+                  {unit === "kg" && value < 1
+                    ? `${value * 1000} g`
+                    : `${value} ${unit}`}
+                </button>
+              ))}
+            </div>
             <div className="selection-fields">
               <label>
                 Quantidade
@@ -639,18 +915,94 @@ export default function App() {
               </p>
             )}
             <button className="primary add-selection" type="submit">
-              <Plus size={18} /> Adicionar à seleção
+              {editingItem ? <Check size={18} /> : <Plus size={18} />}{" "}
+              {editingItem ? "Salvar alteração" : "Adicionar ao pedido"}
+              {selectionSubtotal !== null && (
+                <span>{money(selectionSubtotal)}</span>
+              )}
             </button>
           </form>
         </dialog>
+        <p className="image-disclaimer">
+          {demo ? "Demonstração com dados fictícios e temporários. " : ""}
+          Imagens ilustrativas. Os valores dos cortes por peso são estimados até
+          a pesagem no balcão.
+        </p>
+        {review && (
+          <Modal
+            title="Confira seu pedido"
+            eyebrow="QUASE NO PONTO"
+            onClose={() => setReview(false)}
+          >
+            <p className="modal-description">
+              Tudo certo com a sua escolha? Ao confirmar, você recebe uma senha
+              de atendimento.
+            </p>
+            <ul className="review-items">
+              {cartRows.map((item) => (
+                <li key={`${item.cutId}:${item.unit}`}>
+                  <CutPhoto cut={item.cut} />
+                  <span>
+                    <strong>{item.cut.name}</strong>
+                    <small>
+                      {item.quantity.toLocaleString("pt-BR")} {item.unit}
+                    </small>
+                  </span>
+                  <b>
+                    {money(subtotalCents(item.cut.priceCents, item.quantity))}
+                  </b>
+                </li>
+              ))}
+            </ul>
+            <div className="review-total">
+              <span>Total estimado</span>
+              <strong>{money(totalCents)}</strong>
+            </div>
+            {inPerson && (
+              <p className="review-presential">
+                <Check size={16} />
+                Você vai escolher a peça no balcão.
+              </p>
+            )}
+            <p className="field-help">
+              O valor final depende da pesagem no balcão.
+            </p>
+            <div className="modal-actions">
+              <button className="secondary" onClick={() => setReview(false)}>
+                Continuar escolhendo
+              </button>
+              <button
+                className="primary"
+                disabled={registeringOrder}
+                onClick={() => {
+                  setReview(false);
+                  submitOrder();
+                }}
+              >
+                Confirmar e gerar senha <ArrowRight size={17} />
+              </button>
+            </div>
+          </Modal>
+        )}
+        {!mobileCart && (
+          <button
+            ref={cartTrigger}
+            className="mobile-cart-trigger"
+            onClick={() => setMobileCart(true)}
+          >
+            <ShoppingBag size={19} />
+            <span>
+              {serviceTicket
+                ? `Senha ${String(serviceTicket).padStart(3, "0")}`
+                : `Ver meu pedido (${cart.length})`}
+            </span>
+            <strong>
+              {money(serviceTicket ? (receipt?.totalCents ?? 0) : totalCents)}
+            </strong>
+            <ArrowRight size={17} />
+          </button>
+        )}
       </main>
-      <footer>
-        <span>
-          ao ponto <span className="footer-dot">·</span> Cada corte, uma boa
-          escolha.
-        </span>
-        <span>Autoatendimento</span>
-      </footer>
     </div>
   );
 }

@@ -17,12 +17,14 @@ A demonstração usa dados em memória. Qualquer pedido, usuário ou configuraç
 
 1. No cardápio, busque um corte ou escolha uma categoria. Produtos indisponíveis não podem ser selecionados.
 2. Selecione a quantidade. Para testar, `0,500` kg de picanha resulta em R$ 39,95 no catálogo fictício.
-3. Revise os itens e marque a escolha presencial se desejar escolher a peça no balcão.
-4. Confirme o pedido. Anote a senha e acompanhe pelo painel ou pelo link/QR code exibido.
+3. Edite quantidades no resumo e marque a escolha presencial se desejar escolher a peça no balcão. No celular, abra **Ver meu pedido**.
+4. Clique em **Revisar pedido**, confira os itens e use **Confirmar e gerar senha**. Anote a senha e acompanhe pelo link/QR code exibido. O comprovante pode ser impresso ou ter seu link copiado.
 5. Abra **Atendimento** em outra aba. Na demonstração, entre com `gerente@demo.local` e `DemoAoPonto2026!`.
 6. Consulte o agrupamento de cortes, chame a próxima senha e confira a atualização no painel público.
-7. Rechame quando necessário e conclua o atendimento. O pedido sai dos agrupamentos.
-8. Em **Administração**, cadastre usuários e cortes, altere disponibilidade e horários e escolha entre chamadas manuais e automáticas.
+7. Busque por pedido, senha ou corte e filtre a situação da fila. Rechame quando necessário. Ao concluir, confira a janela de confirmação da entrega; o pedido sai dos agrupamentos.
+8. Em **Administração**, utilize as seções **Cortes do cardápio**, **Sua equipe** e **Horários e fila**. Cortes arquivados podem ser reativados. Preços aceitam vírgula ou ponto.
+
+No painel público, **Ativar som** habilita um aviso sonoro nas novas chamadas. O navegador exige esse primeiro clique. O botão de tela cheia depende do suporte do navegador. O painel apresenta a chamada atual e as cinco últimas chamadas anteriores, enquanto a API mantém até dez registros recentes.
 
 O QR code utiliza o endereço pelo qual o sistema foi aberto. Um endereço `127.0.0.1` pertence ao próprio aparelho e não abre o notebook em outro celular. Para usar QR entre dispositivos, o sistema deve ter um endereço de rede acessível ou estar publicado com HTTPS.
 

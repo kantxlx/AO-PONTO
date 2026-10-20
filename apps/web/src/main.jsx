@@ -2,6 +2,12 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./Shell.jsx";
 import "./styles.css";
+import "./operations.css";
+import "./admin.css";
+import "./public-panels.css";
+import "./operations-responsive.css";
+import "./readability.css";
+import { allImages } from "./media.js";
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   navigator.serviceWorker
     .register("/sw.js")
@@ -14,7 +20,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
         registration.active ||
         registration.waiting ||
         registration.installing
-      )?.postMessage({ type: "CACHE_ASSETS", paths });
+      )?.postMessage({ type: "CACHE_ASSETS", paths: [...paths, ...allImages] });
     })
     .catch(() => {});
 }
