@@ -32,3 +32,23 @@ jobs:
       - run: npm run db:seed
       - run: npm test
       - run: npm run build
+      - name: Validar backup e restauração em banco isolado
+        run: |
+          docker exec ${{ job.services.postgres.id }} pg_dump -U aoponto -d aoponto -Fc -f /tmp/aoponto.dump
+          docker exec ${{ job.services.postgres.id }} createdb -U aoponto aoponto_restore
+          docker exec ${{ job.services.postgres.id }} pg_restore -U aoponto -d aoponto_restore --no-owner /tmp/aoponto.dump
+          docker exec ${{ job.services.postgres.id }} psql -U aoponto -d aoponto_restore -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM cuts; SELECT count(*) FROM schema_migrations;"
+      - name: Construir imagem de implantação
+        run: docker build -t ao-ponto:ci .
+      - name: Verificar aplicação empacotada
+        run: |
+          docker run -d --name ao-ponto-ci --network host -e DATABASE_URL="$DATABASE_URL" ao-ponto:ci
+          for attempt in $(seq 1 20); do
+            if curl --fail http://127.0.0.1:3001/api/ready; then break; fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:3001/api/cuts
+          curl --fail http://127.0.0.1:3001/ | grep 'root'
+      - name: Logs da aplicação
+        if: failure()
+        run: docker logs ao-ponto-ci || true

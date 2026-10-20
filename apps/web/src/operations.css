@@ -1,0 +1,260 @@
+.app-navigation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 12px max(24px, calc((100vw - 1280px) / 2));
+  background: #29231e;
+  color: #fff;
+  font-size: 14px;
+}
+.app-navigation a {
+  color: #fff;
+  text-decoration: none;
+}
+.app-navigation a:hover {
+  text-decoration: underline;
+}
+.app-navigation span {
+  margin-left: auto;
+}
+.app-navigation button {
+  background: transparent;
+  border: 1px solid #aaa;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 12px;
+}
+.operations {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 24px;
+}
+.operations h1 {
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.2;
+  margin: 8px 0 20px;
+}
+.operations h2 {
+  font-size: 22px;
+}
+.operations p,
+.operations li {
+  line-height: 1.6;
+}
+.ops-card {
+  background: #fff;
+  border: 1px solid #e5ded4;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 24px 0;
+}
+.ops-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.operations button {
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid #d6cbc0;
+  cursor: pointer;
+}
+.operations button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.operations .primary {
+  background: #a93c26;
+  color: #fff;
+  border: 0;
+}
+.operations label {
+  display: block;
+  margin: 12px 0;
+  font-size: 15px;
+}
+.operations input:not([type="checkbox"]),
+.operations textarea,
+.operations select {
+  display: block;
+  width: 100%;
+  border: 1px solid #c9beb4;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 5px;
+  background: #fff;
+  color: #29231e;
+  min-width: 110px;
+  font: inherit;
+}
+.operations input[type="checkbox"],
+.presential input {
+  width: auto;
+  margin-right: 8px;
+  accent-color: #a93c26;
+}
+.ops-form {
+  max-width: 800px;
+}
+.ops-form fieldset {
+  border: 1px solid #ddd;
+  padding: 10px 18px;
+  border-radius: 10px;
+}
+.ops-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.login-card {
+  max-width: 440px;
+  margin: 60px auto;
+}
+.ops-alert {
+  background: #fff1d9;
+  color: #704515;
+  border-left: 4px solid #b47d22;
+  padding: 14px 18px;
+  border-radius: 6px;
+}
+.operations table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.operations th,
+.operations td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #ece6df;
+}
+.operations small {
+  display: block;
+  font-size: 12px;
+  opacity: 0.7;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+.order-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.order-grid .ops-card {
+  margin: 0;
+}
+.status-pill {
+  font-size: 12px;
+  border-radius: 20px;
+  background: #eee9e0;
+  padding: 6px 10px;
+}
+.display {
+  text-align: center;
+}
+.display-current {
+  background: #a93c26;
+  color: white;
+  border-radius: 24px;
+  padding: 40px 20px;
+  margin: 30px 0;
+}
+.display-current strong {
+  display: block;
+  font-size: clamp(100px, 18vw, 200px);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.display-current > span {
+  font-size: 24px;
+}
+.ticket-strip {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.ticket-strip > span {
+  background: #f5f1eb;
+  border-radius: 12px;
+  padding: 18px;
+  font-size: 32px;
+  min-width: 100px;
+}
+.presential {
+  display: block;
+  margin: 14px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.cart-summary > .primary {
+  width: 100%;
+  margin-top: 14px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #d37b32;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .operations {
+    padding: 0 14px;
+    margin: 24px auto;
+  }
+  .ops-card {
+    padding: 18px;
+  }
+  .app-navigation {
+    gap: 12px;
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+  .app-navigation span {
+    margin-left: 0;
+  }
+  .operations th,
+  .operations td {
+    padding: 10px 6px;
+  }
+  .ops-heading .primary {
+    width: 100%;
+  }
+}
+.ticket-tracking {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+.ticket-tracking a {
+  color: #8b2f20;
+  text-decoration: underline;
+}
+.ticket-tracking small {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #665c54;
+  text-align: center;
+}
+.ops-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.ops-metrics > div {
+  background: white;
+  border: 1px solid #e5ded4;
+  border-radius: 12px;
+  padding: 18px;
+}
+.ops-metrics strong {
+  display: block;
+  font-size: 32px;
+  color: #a93c26;
+}

@@ -1,57 +1,53 @@
 # Arquitetura do Ao Ponto
 
+O sistema utiliza React/Vite, API Express e PostgreSQL, organizados em npm workspaces. As áreas públicas são o cardápio, o painel de senhas e o acompanhamento individual. Atendimento exige login; administração exige perfil de gerente.
+
 ## Organização
 
-O sistema utiliza uma arquitetura web cliente-servidor, com React e Vite na apresentação, Node.js e Express na API e PostgreSQL na persistência. As aplicações são organizadas em npm workspaces.
+| Camada                   | Responsabilidade                                                             |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| `apps/web/src/App.jsx`   | Catálogo, seleção, escolha presencial, confirmação e recuperação de reenvios |
+| `apps/web/src/Shell.jsx` | Navegação, login, atendimento, administração e acompanhamento                |
+| `routes` e `controllers` | Contratos HTTP, sessões, permissões de acesso e SSE                          |
+| `services`               | Casos de uso, autorização, quantidades, horários e transições                |
+| `models`                 | Representação de pedido, catálogo e validações de domínio                    |
+| `repositories`           | Persistência PostgreSQL e alternativa demonstrativa em memória               |
+| `database`               | Pool, timeouts e migrações versionadas                                       |
 
-Os casos de uso seguem o Documento de Arquitetura de Software do Ao Ponto. O UC01 corresponde à consulta do cardápio e o UC02 à seleção de cortes.
+As consultas SQL ficam nos repositórios; as regras de aplicação ficam nos services. O runtime monta os componentes e mantém o agendamento das chamadas automáticas.
 
-| Componente | Responsabilidade |
-| --- | --- |
-| Frontend | Apresentar o catálogo e gerenciar a seleção de cortes |
-| API | Disponibilizar os cortes e tratar falhas de consulta |
-| Repositório | Consultar os dados no PostgreSQL |
-| Banco de dados | Armazenar nome, descrição, categoria, preço, unidades e disponibilidade dos cortes |
-| Módulo de seleção | Validar quantidades e unidades, combinar itens e recuperar a seleção local |
+## Pedido e idempotência
 
-## Consulta do cardápio
+A confirmação envia `idempotencyKey` UUID, `inPerson` e itens com `cutId`, `quantity` e `unit`. O servidor verifica o horário, consulta a disponibilidade, valida quantidades e usa o preço do banco. Pedido, itens e senha são gravados na mesma transação.
 
-A API segue o fluxo `routes → controllers → services → repositories → PostgreSQL`. Os models representam os dados do domínio, e os middlewares centralizam respostas de erro. `app.js` monta as dependências; `server.js` inicia o servidor. No frontend, os componentes React compõem a apresentação.
+A chave identifica a tentativa. Um hash do conteúdo normalizado permite recuperar a mesma resposta em reenvios e rejeitar a reutilização da chave para outro pedido. A sequência da senha vem do PostgreSQL; lacunas são possíveis em sequências e não representam perda de pedidos.
 
-O controller traduz a requisição e a resposta HTTP. O service organiza a operação do catálogo e usa o model para retornar os campos públicos. O repositório mantém o SQL e utiliza a conexão centralizada em `src/database/pool.js`. As novas funcionalidades devem seguir essa separação, sem adicionar regras de negócio diretamente às rotas.
+## Fila e concorrência
 
-O esquema completo de persistência e os comandos para criação estão em [Banco de dados](banco-de-dados.md).
+A prioridade é FIFO por número do pedido. Os agrupamentos somam somente o mesmo corte/unidade. Chamadas, reemissões, conclusões, alterações administrativas e confirmação utilizam uma transação com advisory lock `17001009`. Isso coordena processos diferentes conectados ao mesmo banco. O repositório demonstrativo serializa as operações e só publica o estado após sucesso.
 
-O frontend consulta `GET /api/cuts`. A API utiliza uma camada de repositório para acessar o PostgreSQL, mantendo as consultas SQL fora das rotas HTTP.
+Pedidos transitam de `REGISTERED` para `IN_PREPARATION` e `COMPLETED`. Senhas usam `PENDING`, `CALLED`, `FINISHED` e `EXPIRED`. Concluir novamente um pedido concluído devolve o estado existente. Senhas expiradas continuam visíveis à equipe e podem retornar à fila sem trocar o número nem apagar o histórico. As reemissões acumuladas não são zeradas.
 
-A interface apresenta os cortes com nome, descrição, preço, unidade e disponibilidade. O catálogo permite filtro por categoria e busca que ignora acentos. Falhas de consulta exibem uma mensagem com opção de tentar novamente.
+## Chamadas e comunicação
 
-O modo de demonstração utiliza um catálogo fictício e precisa ser configurado explicitamente. Uma falha no PostgreSQL não ativa esse modo automaticamente.
+O funcionário chama a próxima senha ou repete a chamada até o limite configurado. O modo automático é desativado inicialmente. Quando ativado, o agendador verifica a fila a cada segundo, respeita o horário e o intervalo, repete até o limite e depois expira a senha. Em atendimentos demorados, use o modo manual para evitar expiração durante o preparo.
 
-## Seleção de cortes
+`/api/events` transmite snapshots do painel por SSE, com verificação a cada 2 segundos, heartbeat e reconexão nativa do EventSource. A interface usa consulta HTTP como alternativa durante reconexão. O painel da equipe atualiza a cada 3 segundos. Não há promessa de latência zero.
 
-A seleção contém o identificador do corte, a unidade e a quantidade. Os preços são obtidos do catálogo e calculados em centavos, com arredondamento do subtotal de cada item.
+## Offline
 
-Quantidades em quilogramas aceitam vírgula ou ponto e até três casas decimais. Quantidades em unidades devem ser inteiras. A quantidade deve ser maior que zero e limitada a 100 por corte e unidade, incluindo adições repetidas. Esse limite pode ser ajustado conforme a regra de negócio.
+O service worker guarda interface, assets e as respostas públicas de catálogo/horário em cache. Somente depois de abrir o sistema online e preencher esse cache é possível reabrir o cardápio offline. Login, dados administrativos e respostas dos pedidos não são armazenados no cache.
 
-Somente cortes disponíveis e unidades permitidas podem ser selecionados. Ao carregar novamente o catálogo, a seleção descarta os cortes removidos ou indisponíveis.
+A confirmação é salva em `localStorage` antes do envio. Uma falha de rede mantém a mesma chave e o mesmo conteúdo. Com o cardápio aberto, a reconexão ou uma verificação a cada 10 segundos tenta confirmar novamente. Até a resposta do servidor, não existe senha emitida. A validação definitiva sempre usa disponibilidade, preço e horário atuais. Em caso de rejeição, a seleção permanece para revisão. O dispositivo precisa permanecer com o navegador aberto; não há envio em segundo plano com o navegador fechado.
 
-O cliente pode adicionar, aumentar, reduzir e remover itens, limpar a seleção e consultar o valor estimado. O valor final dos produtos vendidos por peso depende da pesagem no balcão.
+## Segurança
 
-## Armazenamento no navegador
+Senhas usam scrypt com salt aleatório; as comparações usam tempo constante. As sessões têm tokens aleatórios, cookie HttpOnly/SameSite Strict, duração de 8 horas e flag Secure em produção. Reiniciar a API encerra sessões. Cada acesso consulta o usuário ativo; alterações de conta revogam suas sessões. O último gerente ativo não pode ser desativado ou perder o perfil.
 
-A seleção é armazenada no localStorage para recuperação após recarregar a página. Dados corrompidos são descartados, e preços não são recuperados desse armazenamento.
+Operações de escrita exigem JSON e validam Origin quando presente. SQL utiliza parâmetros; o corpo HTTP tem limite de 32 KB. O login limita falhas por IP durante 15 minutos. A implantação usa uma única instância da API porque as sessões e os limites de login residem em memória. HTTPS deve terminar no proxy da instalação.
 
-Esse mecanismo não registra pedidos nem implementa sincronização offline. O UC03 deverá confirmar os dados no servidor, persistir pedido e senha em uma transação e impedir duplicações no reenvio. Em totens compartilhados, a sessão deverá ser limpa após confirmação ou abandono para separar clientes.
+O acompanhamento individual usa um identificador UUID não sequencial e apresenta somente senha, estado e posição aproximada. O QR code é gerado localmente, sem serviços externos. Não contém senha de login, itens ou dados pessoais.
 
 ## Validação
 
-Os testes de API verificam a consulta do catálogo e o tratamento de falhas. Os testes de seleção verificam quantidades, unidades, indisponibilidade, adições repetidas e recuperação de dados locais.
-
-O GitHub Actions provisiona PostgreSQL 17, aplica a migração e o seed, executa os testes de integração e gera o build do frontend. A execução [37677331929](https://github.com/kantxlx/AO-PONTO/actions/runs/37677331929) validou essas etapas no commit `d398928`.
-
-## Evolução do sistema
-
-Os demais casos de uso abrangem registro de pedidos, fila de preparo, chamadas de senhas, autenticação, administração de cortes e configuração de horários. Também estão previstos comunicação em tempo real, tratamento de falhas de conexão, testes de concorrência e configuração de implantação.
-
-O planejamento é acompanhado no [Trello](https://trello.com/b/KojhXpU7/ao-ponto). Os comandos de instalação, execução e validação estão no [README](../README.md).
+Os testes cobrem catálogo, seleção, idempotência concorrente, transações, autorização, histórico, fila, reemissão, expiração, conclusão, horários e carga de 5 clientes/200 consultas. PostgreSQL, Docker e restauração são validados no CI; os comandos estão no [README](../README.md). A publicação em hospedagem real e o ensaio com os equipamentos do estabelecimento são etapas de operação acompanhadas no Trello.

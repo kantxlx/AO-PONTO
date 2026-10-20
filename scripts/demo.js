@@ -9,34 +9,35 @@ async function main() {
   const { createApp } = await import(
     pathToFileURL(path.join(projectRoot, "apps", "api", "src", "app.js"))
   );
-  const { createCutRepository } = await import(
+  const { createRuntime } = await import(
     pathToFileURL(
-      path.join(projectRoot, "apps", "api", "src", "repositories", "cuts.js"),
+      path.join(projectRoot, "apps", "api", "src", "services", "runtime.js"),
     )
   );
-  const repository = createCutRepository({ catalogSource: "demo" });
+  const runtime = await createRuntime({ catalogSource: "demo" });
+  const repository = runtime.repository;
   const port = Number(process.env.DEMO_PORT || 4173);
   if (!Number.isInteger(port) || port < 1 || port > 65535)
     throw new Error("DEMO_PORT deve ser uma porta entre 1 e 65535.");
-  const server = createApp(repository, { demo: true, webRoot }).listen(
-    port,
-    "127.0.0.1",
-    (error) => {
-      if (error) return;
-      console.log(`\nAo Ponto\nAbra no navegador: http://127.0.0.1:${port}\n`);
-      console.log(
-        "Catálogo de demonstração. Não requer PostgreSQL ou internet durante o uso.",
-      );
-      console.log("Para encerrar, pressione Ctrl+C neste terminal.\n");
-    },
-  );
+  const server = createApp(repository, {
+    demo: true,
+    webRoot,
+    operations: runtime.service,
+  }).listen(port, "127.0.0.1", (error) => {
+    if (error) return;
+    console.log(`\nAo Ponto\nAbra no navegador: http://127.0.0.1:${port}\n`);
+    console.log(
+      "Demonstração em memória: dados são apagados ao encerrar. Gerente: gerente@demo.local / DemoAoPonto2026!",
+    );
+    console.log("Para encerrar, pressione Ctrl+C neste terminal.\n");
+  });
   server.on("error", async (error) => {
     console.error(
       error.code === "EADDRINUSE"
         ? `A porta ${port} está ocupada. Feche outra execução ou configure DEMO_PORT.`
         : error.message,
     );
-    await repository.close();
+    await runtime.close();
     process.exitCode = 1;
   });
   let closing = false;
@@ -45,7 +46,7 @@ async function main() {
       if (closing) return;
       closing = true;
       server.close(async () => {
-        await repository.close();
+        await runtime.close();
       });
       server.closeAllConnections();
     });

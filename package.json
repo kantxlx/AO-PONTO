@@ -11,7 +11,8 @@
     "build": "npm run build -w @ao-ponto/web",
     "test": "npm run test --workspaces --if-present",
     "db:migrate": "npm run db:migrate -w @ao-ponto/api",
-    "db:seed": "npm run db:seed -w @ao-ponto/api"
+    "db:seed": "npm run db:seed -w @ao-ponto/api",
+    "admin:create": "npm run admin:create -w @ao-ponto/api"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -76,3 +76,13 @@ npm.cmd test
 ```
 
 Sem essa variável, os testes PostgreSQL são explicitamente ignorados.
+
+## Operações da aplicação
+
+A migração `003-operations.sql` acrescenta `orders.request_hash` para conferir o conteúdo dos reenvios e `system_settings.automatic_calls` (inicialmente `false`). Ela também preenche os sete dias, inicialmente de `00:00` até `23:59`; ajuste os horários pela administração antes do uso operacional.
+
+O registro valida o catálogo e grava pedido, itens e senha na mesma transação. As operações utilizam advisory lock `17001009` para impedir disputa entre confirmações, chamadas e alterações do catálogo. O lock `17001008` é reservado à aplicação das migrações e do seed.
+
+A API implementa as transições de pedido, chamadas, reemissões, conclusão, restauração de senha expirada e administração. Remover um corte altera `active=false`; seus dados históricos nos itens anteriores não mudam. As senhas de login usam scrypt e nenhum usuário padrão é criado pelo seed PostgreSQL.
+
+Use `npm.cmd run admin:create` para cadastrar o primeiro gerente com variáveis de ambiente, conforme o README. As tabelas existentes são preservadas ao aplicar `003-operations.sql`.

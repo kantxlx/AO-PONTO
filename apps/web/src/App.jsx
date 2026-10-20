@@ -13,11 +13,131 @@ import {
 } from "lucide-react";
 import { addItem, restoreCart, reconcileCart } from "./cart.js";
 import { useRef } from "react";
+import Ticket from "./Ticket.jsx";
 const money = (value) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
     value / 100,
   );
 export default function App() {
+  const [registeringOrder, setRegisteringOrder] = useState(false);
+  const [serviceTicket, setServiceTicket] = useState(null);
+  const [receipt, setReceipt] = useState(null);
+  const [inPerson, setInPerson] = useState(false);
+  const [pendingOrder, setPendingOrder] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("ao-ponto.pending-order"));
+    } catch {
+      return null;
+    }
+  });
+  const [businessStatus, setBusinessStatus] = useState(null);
+  const submitting = useRef(false),
+    submitLatest = useRef(null);
+  const [offline, setOffline] = useState(!navigator.onLine);
+  useEffect(() => {
+    const reconnect = () => {
+      setOffline(false);
+      if (localStorage.getItem("ao-ponto.pending-order"))
+        submitLatest.current?.();
+    };
+    const disconnect = () => setOffline(true);
+    addEventListener("online", reconnect);
+    addEventListener("offline", disconnect);
+    if (pendingOrder && navigator.onLine) reconnect();
+    const timer = setInterval(() => {
+      if (navigator.onLine && localStorage.getItem("ao-ponto.pending-order"))
+        submitLatest.current?.();
+    }, 10000);
+    return () => {
+      clearInterval(timer);
+      removeEventListener("online", reconnect);
+      removeEventListener("offline", disconnect);
+    };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    const load = () =>
+      fetch("/api/status")
+        .then((r) => {
+          if (!r.ok) throw new Error();
+          return r.json();
+        })
+        .then((s) => {
+          if (active) setBusinessStatus(s);
+        })
+        .catch(() => {
+          if (active) setBusinessStatus(null);
+        });
+    load();
+    const timer = setInterval(load, 10000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, []);
+
+  async function submitOrder() {
+    if (submitting.current) return;
+    if (cart.length === 0 && !pendingOrder) return;
+    submitting.current = true;
+    setRegisteringOrder(true);
+    setServiceTicket(null);
+    setNotice("");
+
+    try {
+      const request = pendingOrder ?? {
+        idempotencyKey: crypto.randomUUID(),
+        inPerson,
+        items: cart.map(({ cutId, quantity, unit }) => ({
+          cutId,
+          quantity,
+          unit,
+        })),
+      };
+      localStorage.setItem("ao-ponto.pending-order", JSON.stringify(request));
+      setPendingOrder(request);
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status >= 400 && response.status < 500) {
+          localStorage.removeItem("ao-ponto.pending-order");
+          setPendingOrder(null);
+        }
+        throw new Error(
+          data.message ||
+            "Não foi possível registrar o pedido. Tente novamente para recuperar a mesma senha.",
+        );
+      }
+
+      setServiceTicket(data.order.ticket.number);
+      setReceipt(data.order);
+      localStorage.setItem("ao-ponto.selection.v1", "[]");
+      localStorage.removeItem("ao-ponto.pending-order");
+      setPendingOrder(null);
+      setInPerson(false);
+      setCart([]);
+      setNotice("Pedido registrado com sucesso.");
+    } catch (error) {
+      setNotice(
+        navigator.onLine
+          ? error.message
+          : "Pedido salvo neste navegador, aguardando conexão. A senha só será emitida após confirmação do servidor.",
+      );
+    } finally {
+      submitting.current = false;
+      setRegisteringOrder(false);
+    }
+  }
+  submitLatest.current = submitOrder;
+
   const [cuts, setCuts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -59,6 +179,8 @@ export default function App() {
     triggerRef.current?.focus();
   }
   function openSelection(cut, event) {
+    setServiceTicket(null);
+    setReceipt(null);
     triggerRef.current = event.currentTarget;
     setSelected(cut);
     setUnit(cut.units[0]);
@@ -76,6 +198,7 @@ export default function App() {
     }
   }
   function changeQuantity(item, direction) {
+    if (pendingOrder || registeringOrder) return;
     const step = item.unit === "kg" ? 0.25 : 1;
     const next = Math.round((item.quantity + direction * step) * 1000) / 1000;
     if (next <= 0 || next > 100) return;
@@ -178,8 +301,32 @@ export default function App() {
         </section>
         {demo && (
           <p className="demo-note">
-            Demonstração · produtos e preços fictícios
+            Demonstração em memória · dados apagados ao encerrar o servidor
           </p>
+        )}
+        {offline && (
+          <p role="alert" className="demo-note">
+            Sem conexão · catálogo em cache. A confirmação ficará pendente até a
+            reconexão.
+          </p>
+        )}
+        {businessStatus && !businessStatus.open && (
+          <p className="demo-note" role="status">
+            Fora do horário de atendimento. Você pode consultar o cardápio.
+          </p>
+        )}
+        {pendingOrder && (
+          <div className="demo-note" role="alert">
+            Há uma confirmação pendente. Use o botão para recuperar a mesma
+            senha.{" "}
+            <button
+              className="primary"
+              disabled={registeringOrder}
+              onClick={submitOrder}
+            >
+              Tentar confirmar novamente
+            </button>
+          </div>
         )}
         <div className="catalog-layout">
           <section className="catalog" aria-label="Cardápio">
@@ -261,7 +408,9 @@ export default function App() {
                         </span>
                         <button
                           className="select-cut"
-                          disabled={!cut.available}
+                          disabled={
+                            !cut.available || !!pendingOrder || registeringOrder
+                          }
                           aria-label={`Selecionar ${cut.name}`}
                           onClick={(event) => openSelection(cut, event)}
                         >
@@ -286,17 +435,38 @@ export default function App() {
                 A seleção estará disponível quando o cardápio carregar.
               </p>
             ) : cartRows.length === 0 ? (
-              <div className="empty-cart">
-                <span>
-                  <ShoppingBag size={36} strokeWidth={1.2} />
-                </span>
-                <h3>O que vai ser hoje?</h3>
-                <p>
-                  Adicione seus cortes favoritos.
-                  <br />
-                  Seu pedido começa aqui.
-                </p>
-              </div>
+              <>
+                {serviceTicket !== null && (
+                  <div className="service-ticket" role="status">
+                    <div className="service-ticket-header">
+                      <span>Pedido registrado</span>
+                      <span className="service-ticket-check">✓</span>
+                    </div>
+
+                    <div className="service-ticket-content">
+                      <p>Sua senha de atendimento</p>
+                      <strong>{serviceTicket}</strong>
+                    </div>
+
+                    {receipt && <Ticket order={receipt} />}
+                    <div className="service-ticket-footer">
+                      Aguarde sua senha ser chamada.
+                    </div>
+                  </div>
+                )}
+
+                <div className="empty-cart">
+                  <span>
+                    <ShoppingBag size={36} strokeWidth={1.2} />
+                  </span>
+                  <h3>O que vai ser hoje?</h3>
+                  <p>
+                    Adicione seus cortes favoritos.
+                    <br />
+                    Seu pedido começa aqui.
+                  </p>
+                </div>
+              </>
             ) : (
               <>
                 <div className="cart-items">
@@ -310,6 +480,7 @@ export default function App() {
                         <button
                           className="icon-button"
                           aria-label={`Remover ${item.cut.name}`}
+                          disabled={!!pendingOrder || registeringOrder}
                           onClick={() =>
                             setCart(cart.filter((row) => row !== item.original))
                           }
@@ -357,8 +528,18 @@ export default function App() {
                     <strong>{money(totalCents)}</strong>
                   </div>
                   <p>O valor final depende do peso no balcão.</p>
+                  <label className="presential">
+                    <input
+                      type="checkbox"
+                      checked={inPerson}
+                      disabled={!!pendingOrder || registeringOrder}
+                      onChange={(e) => setInPerson(e.target.checked)}
+                    />{" "}
+                    Quero escolher a peça no balcão
+                  </label>
                   <button
                     className="clear-cart"
+                    disabled={!!pendingOrder || registeringOrder}
                     onClick={() => {
                       setCart([]);
                       setNotice("Seleção limpa.");
@@ -366,10 +547,20 @@ export default function App() {
                   >
                     Limpar seleção
                   </button>
-                  <p className="next-step">
-                    Registro do pedido e emissão de senha serão disponibilizados
-                    na próxima etapa.
-                  </p>
+                  <button
+                    className="primary"
+                    onClick={submitOrder}
+                    disabled={
+                      registeringOrder ||
+                      (!pendingOrder && !businessStatus?.open)
+                    }
+                  >
+                    {registeringOrder
+                      ? "Registrando pedido…"
+                      : pendingOrder
+                        ? "Tentar confirmar novamente"
+                        : "Confirmar pedido"}
+                  </button>
                 </div>
               </>
             )}

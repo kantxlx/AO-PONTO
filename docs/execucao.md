@@ -1,60 +1,55 @@
-# Execução e demonstração
+# Execução e uso
 
 ## Preparar o notebook
 
-1. Instale o [Node.js LTS](https://nodejs.org/en/download). O projeto requer Node.js 22.12 ou superior; Node.js 24 LTS é uma opção compatível.
-2. Baixe o código no [GitHub](https://github.com/kantxlx/AO-PONTO): clique em **Code → Download ZIP** e extraia a pasta. Se já tiver uma cópia Git, atualize com `git pull`.
-3. Abra o terminal na pasta que contém `package.json`, `apps` e `iniciar.cmd`.
-4. Com internet disponível, instale as dependências:
+Instale Node.js 22.12 ou superior, baixe o repositório e abra o terminal na pasta que contém `package.json`. Se já utiliza Git, atualize com `git pull` antes de instalar.
 
 ```powershell
 npm.cmd ci --include=dev
-```
-
-5. Inicie:
-
-```powershell
 npm.cmd run demo
 ```
 
-6. Abra **http://127.0.0.1:4173** no Chrome ou Edge. Mantenha o terminal aberto durante o uso. Para encerrar, pressione **Ctrl+C**.
+Abra **http://127.0.0.1:4173**. Mantenha o terminal aberto. Para encerrar, use **Ctrl+C**. Depois da instalação, `iniciar.cmd` executa a demonstração com dois cliques no Windows.
 
-No Windows, depois da instalação, `iniciar.cmd` executa o mesmo comando com dois cliques. No macOS/Linux, use `npm ci` e `npm run demo`.
+A demonstração usa dados em memória. Qualquer pedido, usuário ou configuração é perdido quando o servidor para. Para persistir dados, configure PostgreSQL e execute as migrações conforme o [README](../README.md).
 
-O build é gerado a cada início para usar o código atual. O servidor disponibiliza frontend e API na mesma porta. A demonstração não requer PostgreSQL, Docker, login nem internet depois de instalar as dependências. Ela usa um catálogo fictício identificado na interface.
+## Utilizar o sistema
 
-## Roteiro de demonstração
+1. No cardápio, busque um corte ou escolha uma categoria. Produtos indisponíveis não podem ser selecionados.
+2. Selecione a quantidade. Para testar, `0,500` kg de picanha resulta em R$ 39,95 no catálogo fictício.
+3. Revise os itens e marque a escolha presencial se desejar escolher a peça no balcão.
+4. Confirme o pedido. Anote a senha e acompanhe pelo painel ou pelo link/QR code exibido.
+5. Abra **Atendimento** em outra aba. Na demonstração, entre com `gerente@demo.local` e `DemoAoPonto2026!`.
+6. Consulte o agrupamento de cortes, chame a próxima senha e confira a atualização no painel público.
+7. Rechame quando necessário e conclua o atendimento. O pedido sai dos agrupamentos.
+8. Em **Administração**, cadastre usuários e cortes, altere disponibilidade e horários e escolha entre chamadas manuais e automáticas.
 
-1. Explique o objetivo: organizar o autoatendimento de um açougue, com totem, painel dos funcionários e painel de senhas.
-2. Mostre a arquitetura: React no frontend, API Express e PostgreSQL previsto para os dados persistidos. O catálogo demonstrativo substitui a consulta ao banco somente neste modo de execução.
-3. Apresente o UC01: percorra o catálogo, filtre por categoria e busque `linguica` para mostrar a busca sem acentos.
-4. Mostre que o frango inteiro está indisponível e não pode ser selecionado.
-5. Apresente o UC02: selecione picanha, informe `0,500` kg e confira o subtotal de R$ 39,95.
-6. Adicione alcatra, altere a quantidade, remova um item e explique o total estimado.
-7. Recarregue a página para demonstrar a recuperação da seleção no navegador. Ao terminar, clique em **Limpar seleção**.
-8. Apresente os próximos fluxos no Trello: registro do pedido, emissão de senha, atendimento e administração.
+O QR code utiliza o endereço pelo qual o sistema foi aberto. Um endereço `127.0.0.1` pertence ao próprio aparelho e não abre o notebook em outro celular. Para usar QR entre dispositivos, o sistema deve ter um endereço de rede acessível ou estar publicado com HTTPS.
 
-O fluxo demonstrável termina na seleção. Pedido confirmado, emissão de senha, autenticação e painéis em tempo real ainda não estão disponíveis. A recuperação da seleção no navegador não representa sincronização de pedidos offline.
+## Falha de conexão
 
-## Conferência antes de usar
+Abra o sistema online antes de depender do cache offline. Se a conexão falhar durante a confirmação, o pedido fica pendente no navegador. Não é emitida uma senha local. Deixe o cardápio aberto: o sistema tenta novamente na reconexão e a cada 10 segundos enquanto houver uma confirmação pendente. Também há um botão para nova tentativa.
 
-- Faça a instalação e teste no próprio notebook com antecedência.
-- Execute `npm.cmd test` e `npm.cmd run build` para conferir testes e compilação.
-- Inicie a demonstração, desconecte a internet e confirme que o catálogo e a seleção continuam funcionando.
-- Limpe a seleção antes de começar. Use F11 se desejar colocar o navegador em tela cheia.
-- Mantenha o terminal aberto e leve a pasta com as dependências já instaladas nesse notebook. Não é necessário executar a instalação a cada uso.
+Não limpe os dados do navegador durante uma confirmação pendente. O servidor utiliza a mesma chave para recuperar o pedido sem duplicá-lo. Se o estabelecimento estiver fechado ou um corte tiver sido desativado, a API rejeita o envio para que a seleção seja revisada.
 
 ## Problemas comuns
 
-| Problema                                 | Como resolver                                                                                                |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `node` ou `npm` não encontrado           | Instale Node.js LTS e reabra o terminal                                                                      |
-| PowerShell bloqueia `npm.ps1`            | Use `npm.cmd` nos comandos; não precisa mudar a política do Windows                                          |
-| `package.json` não encontrado            | Abra o terminal na pasta extraída que contém esse arquivo                                                    |
-| Dependências ausentes                    | Execute `npm.cmd ci --include=dev` com internet antes de usar                                                              |
-| Porta 4173 ocupada                       | Encerre a outra execução; ou use `$env:DEMO_PORT='4174'` antes de `npm.cmd run demo` e abra a porta indicada |
-| Página não abre                          | Confira se o terminal mostra o endereço e se continua aberto; use HTTP no endereço local                     |
-| Seleção de demonstração anterior aparece | Clique em **Limpar seleção**                                                                                 |
+| Problema                         | Como resolver                                                                    |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `vite` não reconhecido           | Feche as execuções do projeto e execute `npm.cmd ci --include=dev`               |
+| PowerShell bloqueia `npm.ps1`    | Use `npm.cmd`                                                                    |
+| Porta 4173 ocupada               | Use a execução já aberta ou `$env:DEMO_PORT='4174'` antes de iniciar             |
+| Página não abre                  | Confira endereço HTTP e porta indicados no terminal                              |
+| Login perdido após reiniciar     | Entre novamente; sessões não sobrevivem ao reinício da API                       |
+| Dados sumiram após encerrar demo | Use PostgreSQL para persistência; a demonstração é em memória                    |
+| Sem catálogo offline             | É necessário abrir online e completar o cache antes                              |
+| Senha expirada                   | A equipe pode usar **Recolocar na fila**; o número e o histórico são preservados |
 
-Para desenvolvimento com PostgreSQL, siga a seção correspondente no [README](../README.md).
+## Verificações
 
+```powershell
+npm.cmd test
+npm.cmd run build
+```
+
+Os testes PostgreSQL dependem de `TEST_DATABASE_URL`, apontando exclusivamente para um banco de teste com migrações e seed. Nunca configure essa variável com o banco de operação.

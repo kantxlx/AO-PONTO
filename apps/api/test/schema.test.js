@@ -23,7 +23,7 @@ test(
       );
       assert.deepEqual(
         migration.rows.map((row) => row.name),
-        ["001-catalog.sql", "002-domain.sql"],
+        ["001-catalog.sql", "002-domain.sql", "003-operations.sql"],
       );
       const user = await client.query(
         "INSERT INTO users (name,email,password_hash,role) VALUES ('Teste','schema-test@example.test',$1,'MANAGER') RETURNING id",
