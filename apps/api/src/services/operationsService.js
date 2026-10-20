@@ -173,7 +173,9 @@ export function createOperationsService(
           Object.assign(item, {
             name: c.name,
             priceCents: c.priceCents,
-            subtotalCents: Math.round(item.quantity * c.priceCents),
+            subtotalCents: Math.floor(
+              (Math.round(item.quantity * 1000) * c.priceCents + 500) / 1000,
+            ),
           });
         }
         const order = await tx.insertOrder(

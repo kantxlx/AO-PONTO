@@ -11,7 +11,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { addItem, restoreCart, reconcileCart } from "./cart.js";
+import { addItem, restoreCart, reconcileCart, subtotalCents } from "./cart.js";
 import { useRef } from "react";
 import Ticket from "./Ticket.jsx";
 const money = (value) =>
@@ -257,7 +257,7 @@ export default function App() {
     }))
     .filter((item) => item.cut);
   const totalCents = cartRows.reduce(
-    (total, item) => total + Math.round(item.cut.priceCents * item.quantity),
+    (total, item) => total + subtotalCents(item.cut.priceCents, item.quantity),
     0,
   );
   return (
@@ -515,7 +515,7 @@ export default function App() {
                         </div>
                         <span>
                           {money(
-                            Math.round(item.cut.priceCents * item.quantity),
+                            subtotalCents(item.cut.priceCents, item.quantity),
                           )}
                         </span>
                       </div>

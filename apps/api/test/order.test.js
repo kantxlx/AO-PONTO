@@ -349,3 +349,20 @@ test(
     }
   },
 );
+
+test("Pedido: subtotal de 1,005 kg coincide com arredondamento decimal PostgreSQL", async () => {
+  const { service, manager } = await fixture();
+  const cut = await service.saveCut(manager, null, {
+    name: "Corte centavos",
+    category: "Bovinos",
+    description: "",
+    priceCents: 100,
+    units: ["kg"],
+    available: true,
+  });
+  const result = await service.register({
+    ...payload(),
+    items: [{ cutId: cut.id, quantity: 1.005, unit: "kg" }],
+  });
+  assert.equal(result.order.totalCents, 101);
+});

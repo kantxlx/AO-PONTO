@@ -9,6 +9,9 @@ export function parseQuantity(value, unit) {
     throw new Error("Para unidades, informe um número inteiro.");
   return quantity;
 }
+export function subtotalCents(priceCents, quantity) {
+  return Math.floor((Math.round(quantity * 1000) * priceCents + 500) / 1000);
+}
 export function addItem(cart, cut, value, unit) {
   if (!cut.available) throw new Error("Este corte está indisponível.");
   if (!cut.units.includes(unit))

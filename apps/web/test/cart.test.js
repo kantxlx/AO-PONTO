@@ -46,3 +46,9 @@ test("UC02: retira da seleção produtos removidos ou indisponíveis", () => {
     [],
   );
 });
+
+test("Preço fracionado: arredonda meio centavo sem erro de ponto flutuante", async () => {
+  const { subtotalCents } = await import("../src/cart.js");
+  assert.equal(subtotalCents(100, 1.005), 101);
+  assert.equal(subtotalCents(7990, 0.5), 3995);
+});
