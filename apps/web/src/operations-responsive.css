@@ -758,3 +758,10 @@
     min-height: 44px;
   }
 }
+@media (max-width: 430px) {
+  .section-tabs {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    row-gap: 2px;
+  }
+}

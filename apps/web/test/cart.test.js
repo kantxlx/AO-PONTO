@@ -52,3 +52,38 @@ test("Preço fracionado: arredonda meio centavo sem erro de ponto flutuante", as
   assert.equal(subtotalCents(100, 1.005), 101);
   assert.equal(subtotalCents(7990, 0.5), 3995);
 });
+
+test("UC02: limites de quantidade e unidades inteiras", () => {
+  assert.equal(parseQuantity("100", "kg"), 100);
+  assert.equal(parseQuantity("100,000", "kg"), 100);
+  assert.throws(() => parseQuantity("100,001", "kg"));
+  assert.equal(parseQuantity("3", "un"), 3);
+  assert.throws(() => parseQuantity("3,5", "un"));
+  assert.deepEqual(addItem([], cut, "100", "kg"), [
+    { cutId: "picanha", unit: "kg", quantity: 100 },
+  ]);
+});
+
+test("UC02: restauração descarta unidade inválida e reconciliação remove cortes ausentes", () => {
+  assert.deepEqual(
+    restoreCart(
+      JSON.stringify([
+        { cutId: "picanha", unit: "g", quantity: 1 },
+        { cutId: "ausente", unit: "kg", quantity: 1 },
+        { cutId: "alcatra", unit: "kg", quantity: 2 },
+      ]),
+    ),
+    [
+      { cutId: "ausente", unit: "kg", quantity: 1 },
+      { cutId: "alcatra", unit: "kg", quantity: 2 },
+    ],
+  );
+  assert.deepEqual(
+    reconcileCart([{ cutId: "picanha", unit: "un", quantity: 1 }], [cut]),
+    [],
+  );
+  assert.deepEqual(
+    reconcileCart([{ cutId: "ausente", unit: "kg", quantity: 1 }], [cut]),
+    [],
+  );
+});
