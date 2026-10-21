@@ -1782,6 +1782,19 @@ main:focus {
     scroll-margin-top: 143px;
   }
 }
+@media (max-width: 430px) {
+  .app-navigation {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+  .app-navigation a {
+    flex: 1 1 50%;
+  }
+  .catalog {
+    scroll-margin-top: 185px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *:before,
