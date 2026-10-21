@@ -68,14 +68,20 @@ O seed insere apenas cortes fictícios ausentes. Não altera cortes existentes, 
 
 O CI cria PostgreSQL 17, aplica as migrações duas vezes para verificar reexecução, carrega o catálogo e testa preços, vínculos, idempotência, quantidades, senhas e horários. Os testes de integridade usam transação com rollback e não deixam pedidos ou usuários de teste persistidos.
 
-Para executar localmente, use um banco isolado com migração e seed aplicados:
+Para executar localmente, crie um banco separado do banco de desenvolvimento, aplique migração e seed e use-o apenas nos testes:
 
 ```powershell
-$env:TEST_DATABASE_URL='postgresql://aoponto:local_dev_only@localhost:5432/aoponto'
-npm.cmd test
+# Na primeira execução; se o banco já existir, pule esta linha.
+docker compose exec -T db createdb -U aoponto aoponto_test
+$env:DATABASE_URL='postgresql://aoponto:local_dev_only@127.0.0.1:5432/aoponto_test'
+npm.cmd run db:migrate
+npm.cmd run db:seed
+$env:TEST_DATABASE_URL=$env:DATABASE_URL
+npm.cmd test -w @ao-ponto/api
+Remove-Item Env:DATABASE_URL, Env:TEST_DATABASE_URL
 ```
 
-Sem essa variável, os testes PostgreSQL são explicitamente ignorados.
+Sem `TEST_DATABASE_URL`, os testes PostgreSQL são explicitamente ignorados.
 
 ## Operações da aplicação
 

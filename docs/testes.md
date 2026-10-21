@@ -21,15 +21,23 @@ npm.cmd test -w @ao-ponto/web
 
 ### Testes PostgreSQL
 
-Três testes de integração com PostgreSQL são ignorados quando `TEST_DATABASE_URL` não está definida. Use um banco isolado, nunca o banco de produção:
+Três testes de integração com PostgreSQL são ignorados quando `TEST_DATABASE_URL` não está definida. Use um banco isolado, nunca o banco de produção. Nesta validação foi usado `aoponto_test` no PostgreSQL local do Docker:
 
 ```powershell
-$env:TEST_DATABASE_URL='postgresql://usuario:senha@127.0.0.1:5432/aoponto_test'
+# Na primeira execução; se o banco já existir, pule esta linha.
+docker compose exec -T db createdb -U aoponto aoponto_test
+
+$env:DATABASE_URL='postgresql://aoponto:local_dev_only@127.0.0.1:5432/aoponto_test'
+npm.cmd run db:migrate
+npm.cmd run db:seed
+
+$env:TEST_DATABASE_URL=$env:DATABASE_URL
 npm.cmd test -w @ao-ponto/api
-Remove-Item Env:TEST_DATABASE_URL
+
+Remove-Item Env:DATABASE_URL, Env:TEST_DATABASE_URL
 ```
 
-Os testes de esquema usam transação e `ROLLBACK`; ainda assim, o banco deve ser exclusivo para teste. As migrações precisam estar aplicadas no banco indicado.
+O `db:migrate` cria as tabelas; o `db:seed` carrega os oito cortes fictícios esperados pelos testes. Os testes de esquema usam transação e `ROLLBACK`; o teste de pedido PostgreSQL remove os próprios registros ao final. Ainda assim, o banco deve ser exclusivo para teste.
 
 ## Suítes e cobertura
 
@@ -60,14 +68,14 @@ Os testes de API usam `node:test`, `createMemoryOperations`, `createOperationsSe
 
 - Data: 21/10/2026.
 - Branch: `testes/validacao`, criada a partir de `main` (`d631d7a`).
-- `npm.cmd test`: **25 aprovados**, **0 falhas**, **3 ignorados**. Sendo 14 aprovados na API, 11 na web e 3 testes PostgreSQL ignorados.
+- `npm.cmd test` com `TEST_DATABASE_URL`: **28 aprovados**, **0 falhas**, **0 ignorados**. Sendo 17 aprovados na API e 11 na web. Sem a variável, os 3 testes PostgreSQL são ignorados.
 - `npm.cmd run build`: concluído com Vite 7.3.7. Artefatos finais: JavaScript de 321,04 kB (101,08 kB gzip) e CSS de 73,95 kB (15,33 kB gzip).
 - Smoke HTTP no modo demo: saúde, catálogo, expediente, painel, pedido, login de gerente, operações, chamada, conclusão, acompanhamento, sessão e logout responderam conforme esperado.
 - Teste funcional no navegador: catálogo, seleção de 0,500 kg de picanha, carrinho, envio, senha `007`, QR code, login de gerente, chamada, conclusão da senha `002`, administração, painel atualizado e acompanhamento concluído.
 
 ## Limitações
 
-- Os três testes PostgreSQL não foram executados nesta máquina porque `TEST_DATABASE_URL` não estava definida.
+- A execução padrão, sem `TEST_DATABASE_URL`, ignora os três testes PostgreSQL. Com o banco isolado `aoponto_test`, os 17 testes da API passaram.
 - Não há teste E2E automatizado com navegador; os fluxos de interface foram verificados manualmente. A inclusão de Playwright depende de autorização para adicionar dependência e configurar o CI.
 - A auditoria responsiva foi feita por simulação de viewport no navegador, não em aparelhos físicos. Consulte [responsividade.md](responsividade.md).
 - O modo demo mantém os dados em memória. Reiniciar o servidor apaga pedidos, usuários e configurações.

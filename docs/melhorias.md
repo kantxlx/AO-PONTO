@@ -15,11 +15,9 @@ Hoje os fluxos de interface foram validados manualmente. Um teste com Playwright
 
 Isso exige autorização para adicionar uma dependência de desenvolvimento, instalar navegadores no CI e manter uma massa de teste isolada. Não foi feito nesta etapa.
 
-### 2. Reproduzir a suíte PostgreSQL em ambiente local documentado
+### 2. Manter a suíte PostgreSQL na rotina
 
-Os três testes PostgreSQL são ignorados sem `TEST_DATABASE_URL`. O CI já cobre o banco, mas uma receita local curta reduz o risco de uma alteração de SQL passar apenas com o repositório em memória.
-
-Sugestão: criar um banco `aoponto_test`, aplicar migrações e executar `npm.cmd test -w @ao-ponto/api` com a variável definida. O banco nunca deve ser o de produção.
+Os três testes PostgreSQL foram executados nesta validação no banco isolado `aoponto_test`, com migrações e seed aplicados. A receita está em [testes.md](testes.md). O CI já cobre o banco; a recomendação é manter essa execução antes de alterações de SQL e nunca apontar a variável para o banco de produção.
 
 ### 3. Regressão responsiva no CI
 
